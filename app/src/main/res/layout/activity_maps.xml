@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:map="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <fragment
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".MapsActivity" />
+
+    <com.nambimobile.widgets.efab.ExpandableFabLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.nambimobile.widgets.efab.ExpandableFab
+            android:id="@+id/landmarks"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|end"
+            android:layout_marginTop="@dimen/ui_margin_medium"
+            android:layout_marginEnd="@dimen/ui_margin_medium"
+            android:layout_marginRight="@dimen/ui_margin_medium"
+            map:efab_color="#ffffff"
+            map:efab_icon="@drawable/ic_baseline_add_24"
+            map:efab_iconAnimationRotationDeg="-225"
+            map:efab_closingAnticipateTension="0"
+            map:efab_fabOptionPosition="below"
+            map:label_text="Landmarks"/>
+
+        <com.nambimobile.widgets.efab.FabOption
+            android:id="@+id/natfab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            map:fab_color="#51ae6e"
+            map:fab_icon="@drawable/ic_baseline_nature_24" />
+
+        <com.nambimobile.widgets.efab.FabOption
+            android:id="@+id/exfab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            map:fab_color="#eb4a46"
+            map:fab_icon="@drawable/ic_baseline_directions_run_24" />
+
+        <com.nambimobile.widgets.efab.FabOption
+            android:id="@+id/famfab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            map:fab_color="#6a89f7"
+            map:fab_icon="@drawable/ic_baseline_family_restroom_24" />
+
+
+    </com.nambimobile.widgets.efab.ExpandableFabLayout>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/bletest"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_baseline_bluetooth_searching_24"
+        android:layout_gravity="top|left"
+        android:layout_marginTop="@dimen/ui_margin_medium"
+        android:layout_marginEnd="@dimen/ui_margin_medium"
+        android:layout_marginLeft="@dimen/ui_margin_medium"/>
+
+
+
+
+
+
+</FrameLayout>
