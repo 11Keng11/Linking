@@ -1,12 +1,27 @@
 package com.example.linking_application_android;
 
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
+import androidx.viewbinding.BuildConfig;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothManager;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -29,12 +44,22 @@ import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.model.ValueRange;
+import com.google.common.collect.Iterables;
 import com.nambimobile.widgets.efab.ExpandableFab;
 import com.nambimobile.widgets.efab.FabOption;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import kotlin.Lazy;
+import kotlin.LazyKt;
+import kotlin.jvm.functions.Function0;
+import kotlin.jvm.internal.Intrinsics;
+import timber.log.Timber;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
@@ -57,11 +82,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private String sheet_id;
     private Sheets sheetsService;
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        /*  Bluetooth  */
+        if (BuildConfig.DEBUG) {
+            Timber.plant(new Timber.DebugTree());
+        }
+        /* ********* */
 
         binding = ActivityMapsBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -119,6 +148,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 // I will use this as a condition to check whether a landmark has been visited.
                 Toast.makeText(getApplicationContext(), "Hi QI Feng",
                         Toast.LENGTH_LONG).show();
+                /*  Bluetooth  */
+                if (!isScanning) {
+                    startBleService();
+                }
+                else {
+                    stopBleService();
+                }
+                /* ********* */
             }
         });
 
@@ -236,4 +273,130 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.setMinZoomPreference(15.0f);
         mMap.setMaxZoomPreference(25.0f);
     }
+
+    /*  Bluetooth  */
+    private boolean isScanning = false;
+    private BluetoothManager bluetoothManager;
+    private BluetoothAdapter bluetoothAdapter;
+    private BroadcastReceiver receiver;
+
+    private void setBluetoothManager() {
+        bluetoothManager =
+                (BluetoothManager) this.getSystemService(Context.BLUETOOTH_SERVICE);
+    }
+    private void setBluetoothAdapter() {
+        bluetoothAdapter = bluetoothManager.getAdapter();
+    }
+    private void setReceiver() {
+        receiver = new BroadcastReceiver() {
+            @SuppressLint("TimberArgCount")
+            public void onReceive(@Nullable Context context, @NotNull Intent intent) {
+                Intrinsics.checkNotNullParameter(intent, "intent");
+                Timber.i("Hello from BLEService!");
+                stopBleService();
+                Toast.makeText(getApplicationContext(), "Successful BLE!",
+                        Toast.LENGTH_LONG).show();
+            }
+        };
+    }
+    private final boolean isLocationPermissionGranted() {
+        return this.hasPermission(this, "android.permission.ACCESS_FINE_LOCATION");
+    }
+    private void startBleService() {
+        Timber.i( "Start BLE service");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !isLocationPermissionGranted()) {
+            requestLocationPermission();
+        } else {
+            setIsScanning(true, bleTest);
+            Intent intent = new Intent(this, BLEService.class);
+            startService(intent);
+            registerReceiver(receiver, new IntentFilter("GET_HELLO"));
+        }
+    }
+    void stopBleService() {
+        Timber.i( "Stop BLE Service.");
+        setIsScanning(false, bleTest);
+        Intent intent = new Intent(this, BLEService.class);
+        stopService(intent);
+    }
+    private void setIsScanning(Boolean isScan, FloatingActionButton button){
+        isScanning = isScan;
+//        if (isScan){
+//            button.setText("Stop scan");
+//        }else{
+//            button.setText("Start scan");
+//        }
+    }
+    @Override
+    public void onRequestPermissionsResult(
+            int requestCode,
+            String @NotNull [] permissions,
+            int @NotNull [] grantResults
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case Constants.LOCATION_PERMISSION_REQUEST_CODE:
+                if (firstOrNull(grantResults) == PackageManager.PERMISSION_DENIED) {
+                    requestLocationPermission();
+                } else {
+//                    startBleService();
+                }
+        }
+    }
+    protected int firstOrNull(@NotNull int[] grantResults) {
+        return grantResults[0];
+    }
+    private final void promptEnableBluetooth() {
+        if (!bluetoothAdapter.isEnabled()) {
+            Intent enableBtIntent = new Intent("android.bluetooth.adapter.action.REQUEST_ENABLE");
+            this.startActivityForResult(enableBtIntent, 1);
+        }
+
+    }
+
+    private final void requestLocationPermission() {
+        if (!this.isLocationPermissionGranted()) {
+            this.requestPermission(this, "android.permission.ACCESS_FINE_LOCATION", 2);
+        }
+    }
+    private boolean hasPermission(Context $this$hasPermission, String permissionType) {
+        return ContextCompat.checkSelfPermission($this$hasPermission, permissionType) == 0;
+    }
+
+    private void requestPermission(Activity $this$requestPermission, String permission, int requestCode) {
+        ActivityCompat.requestPermissions($this$requestPermission, new String[]{permission}, requestCode);
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        setBluetoothManager();
+        setBluetoothAdapter();
+        setReceiver();
+        if (!bluetoothAdapter.isEnabled()) {
+            promptEnableBluetooth();
+        }else{
+//            startBleService();
+        }
+    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data ) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case Constants.ENABLE_BLUETOOTH_REQUEST_CODE:
+                if (resultCode != Activity.RESULT_OK) {
+                    promptEnableBluetooth();
+                }
+        }
+    }
+    public final class Constants {
+        private static final int ENABLE_BLUETOOTH_REQUEST_CODE = 1;
+        private static final int LOCATION_PERMISSION_REQUEST_CODE = 2;
+    }
+    @Override
+    protected void onStop() {
+        super.onStop();
+        unregisterReceiver(receiver); //<-- Unregister to avoid memoryleak
+    }
+    /* ********* */
+
 }

@@ -1,5 +1,6 @@
 plugins {
     id 'com.android.application'
+    id 'kotlin-android'
 }
 
 android {
@@ -28,6 +29,9 @@ android {
     buildFeatures {
         viewBinding true
     }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
 }
 
 dependencies {
@@ -42,4 +46,10 @@ dependencies {
     implementation 'com.nambimobile.widgets:expandable-fab:1.0.2' // expandable fab
     implementation 'com.google.apis:google-api-services-sheets:v4-rev516-1.23.0' // google sheets
     implementation 'com.google.api-client:google-api-client-android:1.23.0' // google sheets
+
+    // For BLEService
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    implementation 'androidx.core:core-ktx:1.5.0'
+    implementation 'com.jakewharton.timber:timber:4.7.1'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0'
 }
