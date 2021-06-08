@@ -36,21 +36,21 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             map:fab_color="#51ae6e"
-            map:fab_icon="@drawable/ic_baseline_nature_24" />
+            map:fab_icon="@drawable/naturefab" />
 
         <com.nambimobile.widgets.efab.FabOption
             android:id="@+id/exfab"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            map:fab_color="#eb4a46"
-            map:fab_icon="@drawable/ic_baseline_directions_run_24" />
+            map:fab_color="#eb4a47"
+            map:fab_icon="@drawable/exercisefab" />
 
         <com.nambimobile.widgets.efab.FabOption
             android:id="@+id/famfab"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             map:fab_color="#6a89f7"
-            map:fab_icon="@drawable/ic_baseline_family_restroom_24" />
+            map:fab_icon="@drawable/familyfab" />
 
 
     </com.nambimobile.widgets.efab.ExpandableFabLayout>
