@@ -11,6 +11,7 @@ import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.location.Location
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -32,6 +33,7 @@ import com.google.api.client.json.JsonFactory
 import com.google.api.client.json.jackson2.JacksonFactory
 import com.google.api.services.sheets.v4.Sheets
 import com.nambimobile.widgets.efab.FabOption
+import mumayank.com.airlocationlibrary.AirLocation
 import timber.log.Timber
 import timber.log.Timber.DebugTree
 import java.io.IOException
@@ -120,6 +122,9 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
             }
             /* ********* */
         })
+
+        // Start Location Scanning
+        airLocation.start()
     }
 
     // Change visibility of markers
@@ -258,10 +263,11 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
     }
 
     private val isLocationPermissionGranted: Boolean
-        private get() = hasPermission(this, "android.permission.ACCESS_FINE_LOCATION")
+    private get() = hasPermission(this, "android.permission.ACCESS_FINE_LOCATION")
 
     private fun startBleService() {
         Timber.i("Start BLE service")
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !isLocationPermissionGranted) {
             requestLocationPermission()
         } else {
@@ -281,9 +287,10 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
 
     private fun setIsScanning(isScan: Boolean, button: FloatingActionButton?) {
         isScanning = isScan
-        //        if (isScan){
+
+//        if (isScan){
 //            button.setText("Stop scan");
-//        }else{
+//        } else{
 //            button.setText("Start scan");
 //        }
     }
@@ -294,11 +301,16 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
             grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+        // AirLocation requests location permissions.
+        airLocation.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+        // TODO: For Review: Lines below may be obsolete as location is already requested above.
         when (requestCode) {
             Constants.LOCATION_PERMISSION_REQUEST_CODE -> if (firstOrNull(grantResults) == PackageManager.PERMISSION_DENIED) {
                 requestLocationPermission()
             } else {
-//                    startBleService();
+                // startBleService();
             }
         }
     }
@@ -336,12 +348,17 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
         if (!bluetoothAdapter!!.isEnabled) {
             promptEnableBluetooth()
         } else {
-//            startBleService();
+            // startBleService();
         }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
+
+        // AirLocation
+        airLocation.onActivityResult(requestCode, resultCode, data)
+
+        // Bluetooth
         when (requestCode) {
             Constants.ENABLE_BLUETOOTH_REQUEST_CODE -> if (resultCode != RESULT_OK) {
                 promptEnableBluetooth()
@@ -362,4 +379,16 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
     /**
      * For Location Services
      */
+
+    private val airLocation = AirLocation(this, object : AirLocation.Callback {
+
+        override fun onSuccess(locations: ArrayList<Location>) {
+            print(locations)
+        }
+
+        override fun onFailure(locationFailedEnum: AirLocation.LocationFailedEnum) {
+            print(locationFailedEnum)
+        }
+    })
+
 }
