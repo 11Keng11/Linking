@@ -43,18 +43,24 @@ import kotlin.jvm.internal.Intrinsics
 class MapsActivity : FragmentActivity(), OnMapReadyCallback {
     private var mMap: GoogleMap? = null
     private var binding: ActivityMapsBinding? = null
+
+    // Landmarks
     private var natureValues // List of nature landmarks data [name, lon, lat, type]
             : List<List<Any?>>? = null
     private var exerciseValues // List of ecercise landmarks data [name, lon, lat, type]
             : List<List<Any?>>? = null
     private var familyValues // List of family landmarks data [name, lon, lat, type]
             : List<List<Any?>>? = null
+
+    // Markers
     private var natureMarkers // ArrayList of nature markers
             : ArrayList<Marker>? = null
     private var familyMarkers // ArrayList of family markers
             : ArrayList<Marker>? = null
     private var exerciseMarkers // ArrayList of exercise markers
             : ArrayList<Marker>? = null
+
+    // FABs
     private lateinit var natFab // Nature filter fab
             : FabOption
     private lateinit var exFab // exercise filter fab
@@ -63,12 +69,19 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
             : FabOption
     private lateinit var bleTest // Test bluetooth scanning
             : FloatingActionButton
+    private lateinit var compassFab // family filter fab
+            : FloatingActionButton
     private var natVisible = true // State - whether nature markers are visible
     private var exVisible = true // State - whether exercise markers are visible
     private var famVisible = true // State - whether family markers are visible
+
+    // API Keys
     private var google_api_key: String? = null
+
+    // Sheets
     private var sheet_id: String? = null
     private var sheetsService: Sheets? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -99,18 +112,23 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
         exFab = findViewById(R.id.exfab)
         famFab = findViewById(R.id.famfab)
         bleTest = findViewById(R.id.bletest)
+        compassFab = findViewById(R.id.compassFab)
+
         natFab.setOnClickListener(View.OnClickListener {
             natVisible = !natVisible
             changeVisibility(natFab, natureMarkers, natVisible)
         })
+
         exFab.setOnClickListener(View.OnClickListener {
             exVisible = !exVisible
             changeVisibility(exFab, exerciseMarkers, exVisible)
         })
+
         famFab.setOnClickListener(View.OnClickListener {
             famVisible = !famVisible
             changeVisibility(famFab, familyMarkers, famVisible)
         })
+
         bleTest.setOnClickListener(View.OnClickListener { // Run your function to scan and print a toast if successful
             // I will use this as a condition to check whether a landmark has been visited.
             Toast.makeText(applicationContext, "Hi QI Feng",
@@ -121,6 +139,11 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
                 stopBleService()
             }
             /* ********* */
+        })
+
+        compassFab.setOnClickListener(View.OnClickListener { // Run your function to scan and print a toast if successful
+            Toast.makeText(applicationContext, "Open Bottom Sheet Dialog",
+                    Toast.LENGTH_LONG).show()
         })
 
         // Start Location Scanning
