@@ -22,7 +22,7 @@ import kotlin.math.pow
 
 
 private  const val FILTER_DEVICE_NAME = "BeaconS23"
-private  const val RSSI_THRESHOLD_SCAN_DISTANCE = -50 //Current estimate there should be a better way to ensure the proper scan radius
+private  const val RSSI_THRESHOLD_SCAN_DISTANCE = -70 //Current estimate there should be a better way to ensure the proper scan radius
 private  const val CHARACTERISTIC_UUID = "beb5483e-36e1-4688-b7f5-ea07361b26a8"
 
 
