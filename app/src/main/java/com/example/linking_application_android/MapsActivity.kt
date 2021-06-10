@@ -75,11 +75,11 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
     private var exVisible = true // State - whether exercise markers are visible
     private var famVisible = true // State - whether family markers are visible
 
-    // API Keys
-    private var google_api_key: String? = null
+    // API Keys. Temporarily store keys and id here. Will shift to a secure config file later on.
+    private var google_api_key: String = "AIzaSyDqJlXlJFXnGGjVXJs8maiUP5rE9oKsOB4"
+    private var sheet_id: String = "1hMrCgWmaN3hDmQOaIBUBcuqSXWbX8pI6d6WElL7-lrU"
 
     // Sheets
-    private var sheet_id: String? = null
     private var sheetsService: Sheets? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -91,26 +91,31 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
         /* ********* */binding = ActivityMapsBinding.inflate(layoutInflater)
         setContentView(binding!!.root)
 
-        // Temporarily store keys and id here. Will shift to a secure config file later on.
-        google_api_key = "AIzaSyDqJlXlJFXnGGjVXJs8maiUP5rE9oKsOB4"
-        sheet_id = "1hMrCgWmaN3hDmQOaIBUBcuqSXWbX8pI6d6WElL7-lrU"
+        initialiseSheets()
 
-        // Initialise google sheets
-        val transport = AndroidHttp.newCompatibleTransport()
-        val factory: JsonFactory = JacksonFactory.getDefaultInstance()
-        sheetsService = Sheets.Builder(transport, factory, null)
-                .setApplicationName("Linking")
-                .build()
-
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        val mapFragment = supportFragmentManager
-                .findFragmentById(R.id.map) as SupportMapFragment?
-        mapFragment!!.getMapAsync(this)
+        initialiseMaps()
 
         initialiseUi();
 
         // Start Location Scanning
         airLocation.start()
+    }
+
+    private fun initialiseMaps() {
+        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+        val mapFragment = supportFragmentManager
+            .findFragmentById(R.id.map) as SupportMapFragment?
+
+        mapFragment!!.getMapAsync(this)
+    }
+
+    private fun initialiseSheets() {
+        // Initialise google sheets
+        val transport = AndroidHttp.newCompatibleTransport()
+        val factory: JsonFactory = JacksonFactory.getDefaultInstance()
+        sheetsService = Sheets.Builder(transport, factory, null)
+            .setApplicationName("Linking")
+            .build()
     }
 
     private fun initialiseUi() {
@@ -155,14 +160,14 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
     }
 
     // Change visibility of markers
-    fun changeVisibility(fab: FabOption?, markers: ArrayList<Marker>?, isVisible: Boolean) {
+    private fun changeVisibility(fab: FabOption?, markers: ArrayList<Marker>?, isVisible: Boolean) {
         for (m in markers!!) {
             m.isVisible = isVisible
         }
     }
 
     // This method retrieves the correct icon for the respective markers. ie nature exercise and family
-    fun getIcon(item: String?): BitmapDescriptor {
+    private fun getIcon(item: String?): BitmapDescriptor {
         val marker = BitmapFactory.decodeResource(resources, resources.getIdentifier(item, "drawable", packageName))
         val sizedMarker = Bitmap.createScaledBitmap(marker, 61, 90, false)
         return BitmapDescriptorFactory.fromBitmap(sizedMarker)
@@ -183,7 +188,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
     }
 
     // Set the markers on the map
-    fun setMarkers(values: List<List<Any?>>?, mapObj: GoogleMap?, markerIcon: BitmapDescriptor?): ArrayList<Marker> {
+    private fun setMarkers(values: List<List<Any?>>?, mapObj: GoogleMap?, markerIcon: BitmapDescriptor?): ArrayList<Marker> {
         val markers = ArrayList<Marker>()
         for (row in values!!) {
             val name = row[0].toString()
@@ -191,14 +196,15 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
             val lon = row[1].toString().toFloat()
             val pos = LatLng(lat.toDouble(), lon.toDouble())
             val type = row[3].toString()
-            var newMarker: Marker
-            newMarker = mapObj!!.addMarker(MarkerOptions()
+            val newMarker: Marker = mapObj!!.addMarker(MarkerOptions()
                     .position(pos)
                     .title(name)
                     .snippet(type)
                     .icon(markerIcon))
+
             markers.add(newMarker)
         }
+        
         return markers
     }
 
