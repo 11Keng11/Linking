@@ -11,6 +11,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.IBinder
+import android.util.Log
 import androidx.annotation.RequiresApi
 import com.example.linking_application_android.ble.ConnectionEventListener
 import com.example.linking_application_android.ble.ConnectionManager
@@ -96,7 +97,7 @@ class BLEService : Service() {
                         stopScan()
                         startConnect(scannedResult.device)
                     }else if (!isDeviceFound) {
-                        Timber.i(
+                        Log.i("BLEService",
                             "Found BLE device! Name: ${d.name}," +
                                     " address: ${d.address}, rssi: $rssi, tx_power: $txPower"//, distance: $distance"
                         )

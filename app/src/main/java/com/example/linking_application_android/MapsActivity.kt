@@ -85,7 +85,8 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        /*  Bluetooth  */if (BuildConfig.DEBUG) {
+        /*  Bluetooth  */
+        if (BuildConfig.DEBUG) {
             Timber.plant(DebugTree())
         }
         /* ********* */binding = ActivityMapsBinding.inflate(layoutInflater)
@@ -136,11 +137,12 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
                 startBleService()
                 Toast.makeText(applicationContext, "Starting Scan",
                     Toast.LENGTH_SHORT).show()
-            } else {
-                Toast.makeText(applicationContext, "Stopping Scan",
-                    Toast.LENGTH_SHORT).show()
-                stopBleService()
             }
+//            else {
+//                Toast.makeText(applicationContext, "Stopping Scan",
+//                    Toast.LENGTH_SHORT).show()
+//                stopBleService()
+//            }
         })
 
         compassFab.setOnClickListener(View.OnClickListener { // Run your function to scan and print a toast if successful
@@ -294,12 +296,10 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
             startService(intent)
             isReceiverRegistered = true
             registerReceiver(receiver, IntentFilter("GET_HELLO"))
-
         }
     }
-
     fun stopBleService() {
-        Timber.i("Stop BLE Service.")
+        Log.i("BLEService","Stop BLE Service.")
         setIsScanning(false, bleTest)
         val intent = Intent(this, BLEService::class.java)
         stopService(intent)
@@ -369,7 +369,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
         if (!bluetoothAdapter!!.isEnabled) {
             promptEnableBluetooth()
         } else {
-            // startBleService();
+//                startBleService()
         }
     }
 
