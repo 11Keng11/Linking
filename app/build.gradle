@@ -52,4 +52,7 @@ dependencies {
     implementation 'androidx.core:core-ktx:1.5.0'
     implementation 'com.jakewharton.timber:timber:4.7.1'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0'
+
+    // For AirLocation Lib
+    implementation 'com.github.mumayank:AirLocation:2.5.2'
 }
