@@ -47,7 +47,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
     // Landmarks
     private var natureValues // List of nature landmarks data [name, lon, lat, type]
             : List<List<Any?>>? = null
-    private var exerciseValues // List of ecercise landmarks data [name, lon, lat, type]
+    private var exerciseValues // List of excercise landmarks data [name, lon, lat, type]
             : List<List<Any?>>? = null
     private var familyValues // List of family landmarks data [name, lon, lat, type]
             : List<List<Any?>>? = null
@@ -131,12 +131,14 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
 
         bleTest.setOnClickListener(View.OnClickListener { // Run your function to scan and print a toast if successful
             // I will use this as a condition to check whether a landmark has been visited.
-            Toast.makeText(applicationContext, "Hi QI Feng",
-                    Toast.LENGTH_LONG).show()
-            /*  Bluetooth  */if (!isScanning) {
+            if (!isScanning) {
                 startBleService()
+                Toast.makeText(applicationContext, "Starting Scan",
+                    Toast.LENGTH_SHORT).show()
             } else {
                 stopBleService()
+                Toast.makeText(applicationContext, "Stopping Scan",
+                    Toast.LENGTH_SHORT).show()
             }
             /* ********* */
         })
@@ -244,7 +246,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
 
         // temporary method
         while (familyValues == null) {
-            Log.d("Check Thread:", "thread still running")
+            continue
         }
 
         // Set the markers in the map
@@ -297,7 +299,9 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
             setIsScanning(true, bleTest)
             val intent = Intent(this, BLEService::class.java)
             startService(intent)
+            Log.e("onStop error", "starting scanning")
             registerReceiver(receiver, IntentFilter("GET_HELLO"))
+            Log.e("onStop error", "starting reciever")
         }
     }
 
@@ -306,6 +310,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
         setIsScanning(false, bleTest)
         val intent = Intent(this, BLEService::class.java)
         stopService(intent)
+        Log.e("onStopr error", "stopping scan")
     }
 
     private fun setIsScanning(isScan: Boolean, button: FloatingActionButton?) {
@@ -396,7 +401,12 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
 
     override fun onStop() {
         super.onStop()
-        unregisterReceiver(receiver) //<-- Unregister to avoid memoryleak
+        try {
+            unregisterReceiver(receiver) //<-- Unregister to avoid memoryleak
+            Log.e("onStop error", "Stopping receiver")
+        } catch (e: IllegalArgumentException) {
+            Log.e("onStop Error", e.localizedMessage)
+        }
     } /* ********* */
 
     /**
