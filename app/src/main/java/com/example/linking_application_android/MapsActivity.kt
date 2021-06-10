@@ -17,11 +17,13 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.viewbinding.BuildConfig
 import com.example.linking_application_android.databinding.ActivityMapsBinding
+import com.example.linking_application_android.util.InternetUtil
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -82,6 +84,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
     // Sheets
     private var sheetsService: Sheets? = null
 
+    @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -91,9 +94,13 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
         /* ********* */binding = ActivityMapsBinding.inflate(layoutInflater)
         setContentView(binding!!.root)
 
-        initialiseSheets()
-
-        initialiseMaps()
+        if (networkAvailable()) {
+            initialiseSheets()
+            initialiseMaps()
+        } else{
+            Log.d("tag", "Network unavailable")
+            Toast.makeText(this.applicationContext, "Please enable internet!", Toast.LENGTH_LONG)
+        }
 
         initialiseUi();
 
@@ -159,6 +166,12 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
         })
     }
 
+    @RequiresApi(Build.VERSION_CODES.M)
+    fun networkAvailable(): Boolean {
+        val internetUtil = InternetUtil()
+        return internetUtil.isOnline(this.applicationContext)
+    }
+
     // Change visibility of markers
     private fun changeVisibility(fab: FabOption?, markers: ArrayList<Marker>?, isVisible: Boolean) {
         for (m in markers!!) {
@@ -204,7 +217,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
 
             markers.add(newMarker)
         }
-        
+
         return markers
     }
 
