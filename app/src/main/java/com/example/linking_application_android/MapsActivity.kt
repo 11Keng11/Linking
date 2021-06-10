@@ -107,6 +107,13 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
                 .findFragmentById(R.id.map) as SupportMapFragment?
         mapFragment!!.getMapAsync(this)
 
+        initialiseUi();
+
+        // Start Location Scanning
+        airLocation.start()
+    }
+
+    private fun initialiseUi() {
         // Set listeners for the landmarks filter
         natFab = findViewById(R.id.natfab)
         exFab = findViewById(R.id.exfab)
@@ -132,7 +139,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
         bleTest.setOnClickListener(View.OnClickListener { // Run your function to scan and print a toast if successful
             // I will use this as a condition to check whether a landmark has been visited.
             Toast.makeText(applicationContext, "Hi QI Feng",
-                    Toast.LENGTH_LONG).show()
+                Toast.LENGTH_LONG).show()
             /*  Bluetooth  */if (!isScanning) {
                 startBleService()
             } else {
@@ -143,11 +150,8 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
 
         compassFab.setOnClickListener(View.OnClickListener { // Run your function to scan and print a toast if successful
             Toast.makeText(applicationContext, "Open Bottom Sheet Dialog",
-                    Toast.LENGTH_LONG).show()
+                Toast.LENGTH_LONG).show()
         })
-
-        // Start Location Scanning
-        airLocation.start()
     }
 
     // Change visibility of markers
