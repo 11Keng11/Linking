@@ -22,6 +22,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.viewbinding.BuildConfig
+import com.example.linking_application_android.compass.CompassBottomSheetFragment
 import com.example.linking_application_android.databinding.ActivityMapsBinding
 import com.example.linking_application_android.util.InternetUtil
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -167,6 +168,12 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
         compassFab.setOnClickListener(View.OnClickListener { // Run your function to scan and print a toast if successful
             Toast.makeText(applicationContext, "Open Bottom Sheet Dialog",
                 Toast.LENGTH_LONG).show()
+
+            supportFragmentManager.let {
+                CompassBottomSheetFragment.newInstance(Bundle()).apply {
+                    show(it, tag)
+                }
+            }
         })
     }
 
