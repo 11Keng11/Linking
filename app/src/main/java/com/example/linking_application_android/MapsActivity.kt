@@ -264,6 +264,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
     private var bluetoothManager: BluetoothManager? = null
     private var bluetoothAdapter: BluetoothAdapter? = null
     private var receiver: BroadcastReceiver? = null
+    private var isReceiverRegistered = false;
     private fun setBluetoothManager() {
         bluetoothManager = this.getSystemService(BLUETOOTH_SERVICE) as BluetoothManager
     }
@@ -284,7 +285,12 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
             }
         }
     }
-
+    private fun unregisterTheReceiver(){
+        if (isReceiverRegistered){
+            unregisterReceiver(receiver) //<-- Unregister to avoid memoryleak
+            isReceiverRegistered = false
+        }
+    }
     private val isLocationPermissionGranted: Boolean
     private get() = hasPermission(this, "android.permission.ACCESS_FINE_LOCATION")
 
@@ -297,6 +303,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
             setIsScanning(true, bleTest)
             val intent = Intent(this, BLEService::class.java)
             startService(intent)
+            isReceiverRegistered = true
             registerReceiver(receiver, IntentFilter("GET_HELLO"))
         }
     }
@@ -396,7 +403,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
 
     override fun onStop() {
         super.onStop()
-        unregisterReceiver(receiver) //<-- Unregister to avoid memoryleak
+        unregisterTheReceiver()
     } /* ********* */
 
     /**
