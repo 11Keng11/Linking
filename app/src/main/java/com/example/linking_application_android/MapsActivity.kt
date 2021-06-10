@@ -131,16 +131,16 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
 
         bleTest.setOnClickListener(View.OnClickListener { // Run your function to scan and print a toast if successful
             // I will use this as a condition to check whether a landmark has been visited.
+            /*  Bluetooth  */
             if (!isScanning) {
                 startBleService()
                 Toast.makeText(applicationContext, "Starting Scan",
                     Toast.LENGTH_SHORT).show()
             } else {
-                stopBleService()
                 Toast.makeText(applicationContext, "Stopping Scan",
                     Toast.LENGTH_SHORT).show()
+                stopBleService()
             }
-            /* ********* */
         })
 
         compassFab.setOnClickListener(View.OnClickListener { // Run your function to scan and print a toast if successful
@@ -200,14 +200,6 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
         return markers
     }
 
-    /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     * This is where we set map style, bounds and markers.
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
-     */
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
 
@@ -266,6 +258,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
     private var bluetoothManager: BluetoothManager? = null
     private var bluetoothAdapter: BluetoothAdapter? = null
     private var receiver: BroadcastReceiver? = null
+    private var isReceiverRegistered = false;
     private fun setBluetoothManager() {
         bluetoothManager = this.getSystemService(BLUETOOTH_SERVICE) as BluetoothManager
     }
@@ -299,9 +292,9 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
             setIsScanning(true, bleTest)
             val intent = Intent(this, BLEService::class.java)
             startService(intent)
-            Log.e("onStop error", "starting scanning")
+            isReceiverRegistered = true
             registerReceiver(receiver, IntentFilter("GET_HELLO"))
-            Log.e("onStop error", "starting reciever")
+
         }
     }
 
@@ -401,13 +394,12 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
 
     override fun onStop() {
         super.onStop()
-        try {
+        if (isReceiverRegistered){
             unregisterReceiver(receiver) //<-- Unregister to avoid memoryleak
-            Log.e("onStop error", "Stopping receiver")
-        } catch (e: IllegalArgumentException) {
-            Log.e("onStop Error", e.localizedMessage)
+            isReceiverRegistered = false
         }
-    } /* ********* */
+    }
+
 
     /**
      * For Location Services
