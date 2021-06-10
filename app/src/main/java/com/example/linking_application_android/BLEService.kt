@@ -97,10 +97,10 @@ class BLEService : Service() {
                         stopScan()
                         startConnect(scannedResult.device)
                     }else if (!isDeviceFound) {
-                        Log.i("BLEService",
-                            "Found BLE device! Name: ${d.name}," +
-                                    " address: ${d.address}, rssi: $rssi, tx_power: $txPower"//, distance: $distance"
-                        )
+//                        Log.i("BLEService",
+//                            "Found BLE device! Name: ${d.name}," +
+//                                    " address: ${d.address}, rssi: $rssi, tx_power: $txPower"//, distance: $distance"
+//                        )
                         if ((rssi > RSSI_THRESHOLD_SCAN_DISTANCE)) {
 //                            val distance = calculateDistance(txPower.toDouble(), rssi.toDouble()) //not working, not accurate
                             scannedResult = result

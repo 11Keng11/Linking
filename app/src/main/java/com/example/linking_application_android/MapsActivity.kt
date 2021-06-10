@@ -138,11 +138,14 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
                 Toast.makeText(applicationContext, "Starting Scan",
                     Toast.LENGTH_SHORT).show()
             }
-//            else {
+            else {
 //                Toast.makeText(applicationContext, "Stopping Scan",
 //                    Toast.LENGTH_SHORT).show()
-//                stopBleService()
-//            }
+                Toast.makeText(applicationContext, "Restarting Scan",
+                    Toast.LENGTH_SHORT).show()
+                stopBleService()
+                startBleService()
+            }
         })
 
         compassFab.setOnClickListener(View.OnClickListener { // Run your function to scan and print a toast if successful
@@ -260,7 +263,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
     private var bluetoothManager: BluetoothManager? = null
     private var bluetoothAdapter: BluetoothAdapter? = null
     private var receiver: BroadcastReceiver? = null
-    private var isReceiverRegistered = false;
+    private var isReceiverRegistered = false
     private fun setBluetoothManager() {
         bluetoothManager = this.getSystemService(BLUETOOTH_SERVICE) as BluetoothManager
     }
@@ -369,7 +372,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
         if (!bluetoothAdapter!!.isEnabled) {
             promptEnableBluetooth()
         } else {
-//                startBleService()
+
         }
     }
 
@@ -402,7 +405,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
 
 
     /**
-     * For Location Services
+     * For Location Services (this is not a service, it does not run in background)
      */
     private val airLocation = AirLocation(this, object : AirLocation.Callback {
 
