@@ -131,11 +131,15 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
 
         bleTest.setOnClickListener(View.OnClickListener { // Run your function to scan and print a toast if successful
             // I will use this as a condition to check whether a landmark has been visited.
-            Toast.makeText(applicationContext, "Hi QI Feng",
-                    Toast.LENGTH_LONG).show()
-            /*  Bluetooth  */if (!isScanning) {
+
+            /*  Bluetooth  */
+            if (!isScanning) {
+                Toast.makeText(applicationContext, "Starting Scan",
+                    Toast.LENGTH_SHORT).show()
                 startBleService()
             } else {
+                Toast.makeText(applicationContext, "Stopping Scan",
+                    Toast.LENGTH_SHORT).show()
                 stopBleService()
             }
             /* ********* */
@@ -198,14 +202,6 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
         return markers
     }
 
-    /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     * This is where we set map style, bounds and markers.
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
-     */
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
 
@@ -285,12 +281,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
             }
         }
     }
-    private fun unregisterTheReceiver(){
-        if (isReceiverRegistered){
-            unregisterReceiver(receiver) //<-- Unregister to avoid memoryleak
-            isReceiverRegistered = false
-        }
-    }
+
     private val isLocationPermissionGranted: Boolean
     private get() = hasPermission(this, "android.permission.ACCESS_FINE_LOCATION")
 
@@ -403,8 +394,11 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
 
     override fun onStop() {
         super.onStop()
-        unregisterTheReceiver()
-    } /* ********* */
+        if (isReceiverRegistered){
+            unregisterReceiver(receiver) //<-- Unregister to avoid memoryleak
+            isReceiverRegistered = false
+        }
+    }
 
     /**
      * For Location Services
