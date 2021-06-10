@@ -3,13 +3,11 @@
     package="com.example.linking_application_android">
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.INTERNET"/>
-
-    <!--
-     Bluetooth Permission
-    -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <!--      Bluetooth Permission -->
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+
     <uses-feature
         android:name="android.hardware.bluetooth_le"
         android:required="true" />
@@ -21,15 +19,12 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Linking_Application_Android">
-
-        <!--
-         Bluetooth Service
-        -->
+        <activity android:name=".routingActivity"></activity>
+        <!--          Bluetooth Service -->
         <service
             android:name=".BLEService"
             android:enabled="true"
             android:exported="true" />
-
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").
