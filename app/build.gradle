@@ -55,4 +55,5 @@ dependencies {
 
     // For AirLocation Lib
     implementation 'com.github.mumayank:AirLocation:2.5.2'
+
 }
