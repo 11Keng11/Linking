@@ -17,11 +17,14 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.viewbinding.BuildConfig
+import com.example.linking_application_android.compass.CompassBottomSheetFragment
 import com.example.linking_application_android.databinding.ActivityMapsBinding
+import com.example.linking_application_android.util.InternetUtil
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -75,38 +78,56 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
     private var exVisible = true // State - whether exercise markers are visible
     private var famVisible = true // State - whether family markers are visible
 
-    // API Keys
-    private var google_api_key: String? = null
+    // API Keys. Temporarily store keys and id here. Will shift to a secure config file later on.
+    private var google_api_key: String = "AIzaSyDqJlXlJFXnGGjVXJs8maiUP5rE9oKsOB4"
+    private var sheet_id: String = "1hMrCgWmaN3hDmQOaIBUBcuqSXWbX8pI6d6WElL7-lrU"
 
     // Sheets
-    private var sheet_id: String? = null
     private var sheetsService: Sheets? = null
 
+    @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        /*  Bluetooth  */if (BuildConfig.DEBUG) {
+        /*  Bluetooth  */
+        if (BuildConfig.DEBUG) {
             Timber.plant(DebugTree())
         }
         /* ********* */binding = ActivityMapsBinding.inflate(layoutInflater)
         setContentView(binding!!.root)
 
-        // Temporarily store keys and id here. Will shift to a secure config file later on.
-        google_api_key = "AIzaSyDqJlXlJFXnGGjVXJs8maiUP5rE9oKsOB4"
-        sheet_id = "1hMrCgWmaN3hDmQOaIBUBcuqSXWbX8pI6d6WElL7-lrU"
+        if (networkAvailable()) {
+            initialiseSheets()
+            initialiseMaps()
+        } else{
+            Log.d("tag", "Network unavailable")
+            Toast.makeText(this.applicationContext, "Please enable internet!", Toast.LENGTH_LONG)
+        }
 
+        initialiseUi();
+
+        // Start Location Scanning
+        airLocation.start()
+    }
+
+    private fun initialiseMaps() {
+        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+        val mapFragment = supportFragmentManager
+            .findFragmentById(R.id.map) as SupportMapFragment?
+
+        mapFragment!!.getMapAsync(this)
+    }
+
+    private fun initialiseSheets() {
         // Initialise google sheets
         val transport = AndroidHttp.newCompatibleTransport()
         val factory: JsonFactory = JacksonFactory.getDefaultInstance()
         sheetsService = Sheets.Builder(transport, factory, null)
-                .setApplicationName("Linking")
-                .build()
+            .setApplicationName("Linking")
+            .build()
+    }
 
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        val mapFragment = supportFragmentManager
-                .findFragmentById(R.id.map) as SupportMapFragment?
-        mapFragment!!.getMapAsync(this)
-
+    private fun initialiseUi() {
         // Set listeners for the landmarks filter
         natFab = findViewById(R.id.natfab)
         exFab = findViewById(R.id.exfab)
@@ -129,38 +150,53 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
             changeVisibility(famFab, familyMarkers, famVisible)
         })
 
-        bleTest.setOnClickListener(View.OnClickListener { // Run your function to scan and print a toast if successful
+        bleTest.setOnClickListener(View.OnClickListener {
+            // Run your function to scan and print a toast if successful
             // I will use this as a condition to check whether a landmark has been visited.
+
             /*  Bluetooth  */
             if (!isScanning) {
                 startBleService()
                 Toast.makeText(applicationContext, "Starting Scan",
                     Toast.LENGTH_SHORT).show()
-            } else {
-                Toast.makeText(applicationContext, "Stopping Scan",
+            }
+            else {
+//                Toast.makeText(applicationContext, "Stopping Scan",
+//                    Toast.LENGTH_SHORT).show()
+                Toast.makeText(applicationContext, "Restarting Scan",
                     Toast.LENGTH_SHORT).show()
                 stopBleService()
+                startBleService()
             }
         })
 
         compassFab.setOnClickListener(View.OnClickListener { // Run your function to scan and print a toast if successful
             Toast.makeText(applicationContext, "Open Bottom Sheet Dialog",
-                    Toast.LENGTH_LONG).show()
-        })
+                Toast.LENGTH_LONG).show()
 
-        // Start Location Scanning
-        airLocation.start()
+            supportFragmentManager.let {
+                CompassBottomSheetFragment.newInstance(Bundle()).apply {
+                    show(it, tag)
+                }
+            }
+        })
+    }
+
+    @RequiresApi(Build.VERSION_CODES.M)
+    fun networkAvailable(): Boolean {
+        val internetUtil = InternetUtil()
+        return internetUtil.isOnline(this.applicationContext)
     }
 
     // Change visibility of markers
-    fun changeVisibility(fab: FabOption?, markers: ArrayList<Marker>?, isVisible: Boolean) {
+    private fun changeVisibility(fab: FabOption?, markers: ArrayList<Marker>?, isVisible: Boolean) {
         for (m in markers!!) {
             m.isVisible = isVisible
         }
     }
 
     // This method retrieves the correct icon for the respective markers. ie nature exercise and family
-    fun getIcon(item: String?): BitmapDescriptor {
+    private fun getIcon(item: String?): BitmapDescriptor {
         val marker = BitmapFactory.decodeResource(resources, resources.getIdentifier(item, "drawable", packageName))
         val sizedMarker = Bitmap.createScaledBitmap(marker, 61, 90, false)
         return BitmapDescriptorFactory.fromBitmap(sizedMarker)
@@ -181,7 +217,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
     }
 
     // Set the markers on the map
-    fun setMarkers(values: List<List<Any?>>?, mapObj: GoogleMap?, markerIcon: BitmapDescriptor?): ArrayList<Marker> {
+    private fun setMarkers(values: List<List<Any?>>?, mapObj: GoogleMap?, markerIcon: BitmapDescriptor?): ArrayList<Marker> {
         val markers = ArrayList<Marker>()
         for (row in values!!) {
             val name = row[0].toString()
@@ -189,14 +225,15 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
             val lon = row[1].toString().toFloat()
             val pos = LatLng(lat.toDouble(), lon.toDouble())
             val type = row[3].toString()
-            var newMarker: Marker
-            newMarker = mapObj!!.addMarker(MarkerOptions()
+            val newMarker: Marker = mapObj!!.addMarker(MarkerOptions()
                     .position(pos)
                     .title(name)
                     .snippet(type)
                     .icon(markerIcon))
+
             markers.add(newMarker)
         }
+
         return markers
     }
 
@@ -258,7 +295,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
     private var bluetoothManager: BluetoothManager? = null
     private var bluetoothAdapter: BluetoothAdapter? = null
     private var receiver: BroadcastReceiver? = null
-    private var isReceiverRegistered = false;
+    private var isReceiverRegistered = false
     private fun setBluetoothManager() {
         bluetoothManager = this.getSystemService(BLUETOOTH_SERVICE) as BluetoothManager
     }
@@ -294,12 +331,10 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
             startService(intent)
             isReceiverRegistered = true
             registerReceiver(receiver, IntentFilter("GET_HELLO"))
-
         }
     }
-
     fun stopBleService() {
-        Timber.i("Stop BLE Service.")
+        Log.i("BLEService","Stop BLE Service.")
         setIsScanning(false, bleTest)
         val intent = Intent(this, BLEService::class.java)
         stopService(intent)
@@ -369,7 +404,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
         if (!bluetoothAdapter!!.isEnabled) {
             promptEnableBluetooth()
         } else {
-            // startBleService();
+
         }
     }
 
@@ -402,7 +437,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
 
 
     /**
-     * For Location Services
+     * For Location Services (this is not a service, it does not run in background)
      */
     private val airLocation = AirLocation(this, object : AirLocation.Callback {
 
