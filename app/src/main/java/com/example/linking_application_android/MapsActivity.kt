@@ -96,11 +96,11 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
         /* ********* */binding = ActivityMapsBinding.inflate(layoutInflater)
         setContentView(binding!!.root)
 
-        if (networkAvailable()) {
+        if (internetAvailable()) {
             initialiseSheets()
             initialiseMaps()
         } else{
-            Log.d("tag", "Network unavailable")
+            Log.d("tag", "Internet unavailable")
             Toast.makeText(this.applicationContext, "Please enable internet!", Toast.LENGTH_LONG)
         }
 
@@ -183,7 +183,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
-    fun networkAvailable(): Boolean {
+    fun internetAvailable(): Boolean {
         val internetUtil = InternetUtil()
         return internetUtil.isOnline(this.applicationContext)
     }
