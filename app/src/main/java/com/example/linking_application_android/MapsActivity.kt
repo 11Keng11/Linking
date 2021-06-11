@@ -85,7 +85,8 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        /*  Bluetooth  */if (BuildConfig.DEBUG) {
+        /*  Bluetooth  */
+        if (BuildConfig.DEBUG) {
             Timber.plant(DebugTree())
         }
         /* ********* */binding = ActivityMapsBinding.inflate(layoutInflater)
@@ -136,10 +137,14 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
                 startBleService()
                 Toast.makeText(applicationContext, "Starting Scan",
                     Toast.LENGTH_SHORT).show()
-            } else {
-                Toast.makeText(applicationContext, "Stopping Scan",
+            }
+            else {
+//                Toast.makeText(applicationContext, "Stopping Scan",
+//                    Toast.LENGTH_SHORT).show()
+                Toast.makeText(applicationContext, "Restarting Scan",
                     Toast.LENGTH_SHORT).show()
                 stopBleService()
+                startBleService()
             }
         })
 
@@ -258,7 +263,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
     private var bluetoothManager: BluetoothManager? = null
     private var bluetoothAdapter: BluetoothAdapter? = null
     private var receiver: BroadcastReceiver? = null
-    private var isReceiverRegistered = false;
+    private var isReceiverRegistered = false
     private fun setBluetoothManager() {
         bluetoothManager = this.getSystemService(BLUETOOTH_SERVICE) as BluetoothManager
     }
@@ -294,12 +299,10 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
             startService(intent)
             isReceiverRegistered = true
             registerReceiver(receiver, IntentFilter("GET_HELLO"))
-
         }
     }
-
     fun stopBleService() {
-        Timber.i("Stop BLE Service.")
+        Log.i("BLEService","Stop BLE Service.")
         setIsScanning(false, bleTest)
         val intent = Intent(this, BLEService::class.java)
         stopService(intent)
@@ -369,7 +372,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
         if (!bluetoothAdapter!!.isEnabled) {
             promptEnableBluetooth()
         } else {
-            // startBleService();
+
         }
     }
 
@@ -402,7 +405,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
 
 
     /**
-     * For Location Services
+     * For Location Services (this is not a service, it does not run in background)
      */
     private val airLocation = AirLocation(this, object : AirLocation.Callback {
 
