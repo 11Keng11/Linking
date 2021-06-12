@@ -79,8 +79,8 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
     private var famVisible = true // State - whether family markers are visible
 
     // API Keys. Temporarily store keys and id here. Will shift to a secure config file later on.
-    private var google_api_key: String = "AIzaSyDqJlXlJFXnGGjVXJs8maiUP5rE9oKsOB4"
-    private var sheet_id: String = "1hMrCgWmaN3hDmQOaIBUBcuqSXWbX8pI6d6WElL7-lrU"
+    private val GOOGLE_API_KEY: String = "AIzaSyDqJlXlJFXnGGjVXJs8maiUP5rE9oKsOB4"
+    private val SHEET_ID: String = "1hMrCgWmaN3hDmQOaIBUBcuqSXWbX8pI6d6WElL7-lrU"
 
     // Sheets
     private var sheetsService: Sheets? = null
@@ -205,8 +205,8 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
     fun readSheet(sheetRange: String?): List<List<Any?>> {
         var values: List<List<Any?>> = ArrayList()
         try {
-            val data = sheetsService!!.spreadsheets().values()[sheet_id, sheetRange]
-                    .setKey(google_api_key)
+            val data = sheetsService!!.spreadsheets().values()[SHEET_ID, sheetRange]
+                    .setKey(GOOGLE_API_KEY)
                     .execute()
             values = data.getValues()
             return values
