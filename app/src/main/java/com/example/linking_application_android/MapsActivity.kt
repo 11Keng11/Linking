@@ -442,11 +442,11 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
     private val airLocation = AirLocation(this, object : AirLocation.Callback {
 
         override fun onSuccess(locations: ArrayList<Location>) {
-            Log.d("TAG", locations.toString())
+            Log.d("Location", locations.toString())
         }
 
         override fun onFailure(locationFailedEnum: AirLocation.LocationFailedEnum) {
-            Log.d("TAG", locationFailedEnum.toString())
+            Log.d("Location", locationFailedEnum.toString())
         }
     })
 
