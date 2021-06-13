@@ -39,7 +39,6 @@ import com.nambimobile.widgets.efab.FabOption
 import mumayank.com.airlocationlibrary.AirLocation
 import timber.log.Timber
 import timber.log.Timber.DebugTree
-import java.io.IOException
 import java.util.*
 import kotlin.jvm.internal.Intrinsics
 
@@ -72,15 +71,17 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
             : FabOption
     private lateinit var bleTest // Test bluetooth scanning
             : FloatingActionButton
-    private lateinit var compassFab // family filter fab
+    private lateinit var openFab // family filter fab
             : FloatingActionButton
+
+
     private var natVisible = true // State - whether nature markers are visible
     private var exVisible = true // State - whether exercise markers are visible
     private var famVisible = true // State - whether family markers are visible
 
-    // API Keys. Temporarily store keys and id here. Will shift to a secure config file later on.
-    private val GOOGLE_API_KEY: String = "AIzaSyDqJlXlJFXnGGjVXJs8maiUP5rE9oKsOB4"
-    private val SHEET_ID: String = "1hMrCgWmaN3hDmQOaIBUBcuqSXWbX8pI6d6WElL7-lrU"
+    // Google sheet keys.
+    private var google_api_key: String = "AIzaSyDqJlXlJFXnGGjVXJs8maiUP5rE9oKsOB4"
+    private var sheet_id: String = "1hMrCgWmaN3hDmQOaIBUBcuqSXWbX8pI6d6WElL7-lrU"
 
     // Sheets
     private var sheetsService: Sheets? = null
@@ -133,7 +134,8 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
         exFab = findViewById(R.id.exfab)
         famFab = findViewById(R.id.famfab)
         bleTest = findViewById(R.id.bletest)
-        compassFab = findViewById(R.id.compassFab)
+        openFab = findViewById(R.id.openfab)
+
 
         natFab.setOnClickListener(View.OnClickListener {
             natVisible = !natVisible
@@ -170,7 +172,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
             }
         })
 
-        compassFab.setOnClickListener(View.OnClickListener { // Run your function to scan and print a toast if successful
+        openFab.setOnClickListener(View.OnClickListener { // Run your function to scan and print a toast if successful
             Toast.makeText(applicationContext, "Open Bottom Sheet Dialog",
                 Toast.LENGTH_LONG).show()
 
@@ -188,55 +190,6 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
         return internetUtil.isOnline(this.applicationContext)
     }
 
-    // Change visibility of markers
-    private fun changeVisibility(fab: FabOption?, markers: ArrayList<Marker>?, isVisible: Boolean) {
-        for (m in markers!!) {
-            m.isVisible = isVisible
-        }
-    }
-
-    // This method retrieves the correct icon for the respective markers. ie nature exercise and family
-    private fun getIcon(item: String?): BitmapDescriptor {
-        val marker = BitmapFactory.decodeResource(resources, resources.getIdentifier(item, "drawable", packageName))
-        val sizedMarker = Bitmap.createScaledBitmap(marker, 61, 90, false)
-        return BitmapDescriptorFactory.fromBitmap(sizedMarker)
-    }
-
-    fun readSheet(sheetRange: String?): List<List<Any?>> {
-        var values: List<List<Any?>> = ArrayList()
-        try {
-            val data = sheetsService!!.spreadsheets().values()[SHEET_ID, sheetRange]
-                    .setKey(GOOGLE_API_KEY)
-                    .execute()
-            values = data.getValues()
-            return values
-        } catch (e: IOException) {
-            Log.e("Sheets failed", e.localizedMessage)
-        }
-        return values
-    }
-
-    // Set the markers on the map
-    private fun setMarkers(values: List<List<Any?>>?, mapObj: GoogleMap?, markerIcon: BitmapDescriptor?): ArrayList<Marker> {
-        val markers = ArrayList<Marker>()
-        for (row in values!!) {
-            val name = row[0].toString()
-            val lat = row[2].toString().toFloat()
-            val lon = row[1].toString().toFloat()
-            val pos = LatLng(lat.toDouble(), lon.toDouble())
-            val type = row[3].toString()
-            val newMarker: Marker = mapObj!!.addMarker(MarkerOptions()
-                    .position(pos)
-                    .title(name)
-                    .snippet(type)
-                    .icon(markerIcon))
-
-            markers.add(newMarker)
-        }
-
-        return markers
-    }
-
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
 
@@ -252,18 +205,18 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
         mMap!!.setLatLngBoundsForCameraTarget(tampinesBounds)
 
         // Add markers for landmarks
-        val natureIcon = getIcon("naturemarker")
-        val familyIcon = getIcon("familymarker")
-        val exerciseIcon = getIcon("exercisemarker")
+        val natureIcon = getIcon("naturemarker", this, packageName)
+        val familyIcon = getIcon("familymarker", this, packageName)
+        val exerciseIcon = getIcon("exercisemarker", this, packageName)
 
         // Get marker values from google sheet
         val getMarkerValues = Thread(object : Runnable {
             var gotData = false
             override fun run() {
                 while (!gotData) {
-                    natureValues = readSheet("Nature!A2:D")
-                    exerciseValues = readSheet("Exercise!A2:D")
-                    familyValues = readSheet("Family!A2:D")
+                    natureValues = readSheet("Nature!A2:D", sheetsService, google_api_key, sheet_id)
+                    exerciseValues = readSheet("Exercise!A2:D", sheetsService, google_api_key, sheet_id)
+                    familyValues = readSheet("Family!A2:D", sheetsService, google_api_key, sheet_id)
                     if (natureValues != null && exerciseValues != null && familyValues != null) {
                         gotData = true
                         break
@@ -273,7 +226,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
         })
         getMarkerValues.start()
 
-        // temporary method
+        // Wait till values are read from google sheet
         while (familyValues == null) {
             continue
         }
@@ -288,6 +241,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
         mMap!!.moveCamera(CameraUpdateFactory.newLatLng(tampines))
         mMap!!.setMinZoomPreference(15.0f)
         mMap!!.setMaxZoomPreference(25.0f)
+
     }
 
     /*  Bluetooth  */
