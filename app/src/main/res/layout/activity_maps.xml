@@ -60,17 +60,16 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_baseline_bluetooth_searching_24"
-        android:layout_gravity="top|left"
+        android:layout_gravity="bottom|left"
         android:layout_marginTop="@dimen/ui_margin_medium"
         android:layout_marginEnd="@dimen/ui_margin_medium"
         android:layout_marginLeft="@dimen/ui_margin_medium"/>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/compassFab"
+        android:id="@+id/openfab"
         android:layout_width="74dp"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|right"
-        android:clickable="true"
+        android:layout_gravity="bottom|center"
         map:srcCompat="@android:drawable/ic_menu_compass" />
 
 
