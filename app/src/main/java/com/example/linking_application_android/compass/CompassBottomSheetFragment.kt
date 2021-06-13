@@ -104,8 +104,15 @@ class CompassBottomSheetFragment : BottomSheetDialogFragment(), SensorEventListe
 
         // "orientationAngles" now has up-to-date information.
 
-        Log.d("Compass - Rotation", rotationMatrix[0].toString())
-        Log.d("Compass - Orientation", orientationAngles.size.toString())
+        // orientationAngles[0] points to North!
+        Log.d("Compass -Orientation",
+            "FST["
+                    + orientationAngles[0].toString()
+                    + "] SEC["
+                    + orientationAngles[1].toString()
+                    + "] TRD["
+                    + orientationAngles[2].toString()
+                    + "]")
     }
 
     companion object {
