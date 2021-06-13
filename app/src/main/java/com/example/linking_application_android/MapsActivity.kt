@@ -79,8 +79,8 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
     private var famVisible = true // State - whether family markers are visible
 
     // API Keys. Temporarily store keys and id here. Will shift to a secure config file later on.
-    private var google_api_key: String = "AIzaSyDqJlXlJFXnGGjVXJs8maiUP5rE9oKsOB4"
-    private var sheet_id: String = "1hMrCgWmaN3hDmQOaIBUBcuqSXWbX8pI6d6WElL7-lrU"
+    private val GOOGLE_API_KEY: String = "AIzaSyDqJlXlJFXnGGjVXJs8maiUP5rE9oKsOB4"
+    private val SHEET_ID: String = "1hMrCgWmaN3hDmQOaIBUBcuqSXWbX8pI6d6WElL7-lrU"
 
     // Sheets
     private var sheetsService: Sheets? = null
@@ -96,11 +96,11 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
         /* ********* */binding = ActivityMapsBinding.inflate(layoutInflater)
         setContentView(binding!!.root)
 
-        if (networkAvailable()) {
+        if (internetAvailable()) {
             initialiseSheets()
             initialiseMaps()
         } else{
-            Log.d("tag", "Network unavailable")
+            Log.d("tag", "Internet unavailable")
             Toast.makeText(this.applicationContext, "Please enable internet!", Toast.LENGTH_LONG)
         }
 
@@ -183,7 +183,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
-    fun networkAvailable(): Boolean {
+    fun internetAvailable(): Boolean {
         val internetUtil = InternetUtil()
         return internetUtil.isOnline(this.applicationContext)
     }
@@ -205,8 +205,8 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
     fun readSheet(sheetRange: String?): List<List<Any?>> {
         var values: List<List<Any?>> = ArrayList()
         try {
-            val data = sheetsService!!.spreadsheets().values()[sheet_id, sheetRange]
-                    .setKey(google_api_key)
+            val data = sheetsService!!.spreadsheets().values()[SHEET_ID, sheetRange]
+                    .setKey(GOOGLE_API_KEY)
                     .execute()
             values = data.getValues()
             return values
@@ -442,11 +442,11 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
     private val airLocation = AirLocation(this, object : AirLocation.Callback {
 
         override fun onSuccess(locations: ArrayList<Location>) {
-            Log.d("TAG", locations.toString())
+            Log.d("Location", locations.toString())
         }
 
         override fun onFailure(locationFailedEnum: AirLocation.LocationFailedEnum) {
-            Log.d("TAG", locationFailedEnum.toString())
+            Log.d("Location", locationFailedEnum.toString())
         }
     })
 
