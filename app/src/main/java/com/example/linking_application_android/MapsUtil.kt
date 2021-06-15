@@ -11,10 +11,8 @@ import java.io.IOException
 import java.util.ArrayList
 import android.content.Context
 
-
-
 // Change visibility of markers
-fun changeVisibility(fab: FabOption?, markers: ArrayList<Marker>?, isVisible: Boolean) {
+fun changeVisibility(markers: ArrayList<Marker>?, isVisible: Boolean) {
     for (m in markers!!) {
         m.isVisible = isVisible
     }
@@ -45,19 +43,23 @@ fun readSheet(sheetRange: String?, sheetsService : Sheets?, google_api_key : Str
 fun setMarkers(values: List<List<Any?>>?, mapObj: GoogleMap?, markerIcon: BitmapDescriptor?): ArrayList<Marker> {
     val markers = ArrayList<Marker>()
     for (row in values!!) {
-        val name = row[0].toString()
-        val lat = row[2].toString().toFloat()
-        val lon = row[1].toString().toFloat()
-        val pos = LatLng(lat.toDouble(), lon.toDouble())
-        val type = row[3].toString()
-        val newMarker: Marker = mapObj!!.addMarker(
-            MarkerOptions()
-            .position(pos)
-            .title(name)
-            .snippet(type)
-            .icon(markerIcon))
-
-        markers.add(newMarker)
+        try {
+            val name = row[0].toString()
+            val lat = row[2].toString().toFloat()
+            val lon = row[1].toString().toFloat()
+            val pos = LatLng(lat.toDouble(), lon.toDouble())
+            val type = row[3].toString()
+            val newMarker: Marker = mapObj!!.addMarker(
+                MarkerOptions()
+                    .position(pos)
+                    .title(name)
+                    .snippet(type)
+                    .icon(markerIcon)
+            )
+            markers.add(newMarker)
+        } catch (e : NumberFormatException) {
+            Log.e("Sheets Error", e.localizedMessage )
+        }
     }
     return markers
 }
