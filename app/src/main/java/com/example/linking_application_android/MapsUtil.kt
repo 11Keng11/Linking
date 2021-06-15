@@ -19,9 +19,9 @@ fun changeVisibility(markers: ArrayList<Marker>?, isVisible: Boolean) {
 }
 
 // This method retrieves the correct icon for the respective markers. ie nature exercise and family
-fun getIcon(item: String?, context: Context, packageName: String): BitmapDescriptor {
+fun getIcon(item: String?, context: Context, packageName: String, width : Int , height : Int): BitmapDescriptor {
     val marker = BitmapFactory.decodeResource(context.getResources(),context.getResources().getIdentifier(item, "drawable", packageName))
-    val sizedMarker = Bitmap.createScaledBitmap(marker, 61, 90, false)
+    val sizedMarker = Bitmap.createScaledBitmap(marker, width, height, false)
     return BitmapDescriptorFactory.fromBitmap(sizedMarker)
 }
 

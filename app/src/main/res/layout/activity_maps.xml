@@ -12,6 +12,11 @@
         android:layout_height="match_parent"
         tools:context=".MapsActivity" />
 
+    <nl.dionsegijn.konfetti.KonfettiView
+        android:id="@+id/viewKonfetti"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
     <com.nambimobile.widgets.efab.ExpandableFabLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -58,7 +63,6 @@
             map:fab_color="#f3ae49"
             map:fab_icon="@drawable/fab_general" />
 
-
     </com.nambimobile.widgets.efab.ExpandableFabLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -79,6 +83,5 @@
         android:layout_marginBottom="@dimen/ui_margin_large"
         map:srcCompat="@drawable/fab_route"
         map:backgroundTint="#ffffff"/>
-
 
 </FrameLayout>
