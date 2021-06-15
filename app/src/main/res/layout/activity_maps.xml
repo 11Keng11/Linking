@@ -21,10 +21,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
-            android:layout_marginBottom="@dimen/ui_margin_medium"
+            android:layout_marginBottom="@dimen/ui_margin_large"
             android:layout_marginEnd="@dimen/ui_margin_medium"
             map:efab_color="#ffffff"
-            map:efab_icon="@drawable/ic_baseline_add_24"
+            map:efab_icon="@drawable/fab_landmarks"
             map:efab_iconAnimationRotationDeg="-225"
             map:efab_closingAnticipateTension="0"
             map:efab_fabOptionPosition="above"/>
@@ -35,41 +35,50 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             map:fab_color="#51ae6e"
-            map:fab_icon="@drawable/naturefab" />
+            map:fab_icon="@drawable/fab_nature" />
 
         <com.nambimobile.widgets.efab.FabOption
             android:id="@+id/exfab"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             map:fab_color="#eb4a47"
-            map:fab_icon="@drawable/exercisefab" />
+            map:fab_icon="@drawable/fab_exercise" />
 
         <com.nambimobile.widgets.efab.FabOption
-            android:id="@+id/famfab"
+            android:id="@+id/plafab"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             map:fab_color="#6a89f7"
-            map:fab_icon="@drawable/familyfab" />
+            map:fab_icon="@drawable/fab_play" />
+
+        <com.nambimobile.widgets.efab.FabOption
+            android:id="@+id/genfab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            map:fab_color="#f3ae49"
+            map:fab_icon="@drawable/fab_general" />
 
 
     </com.nambimobile.widgets.efab.ExpandableFabLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/bletest"
+        android:id="@+id/blefab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/ic_baseline_bluetooth_searching_24"
+        android:src="@drawable/fab_ble"
         android:layout_gravity="bottom|start"
         android:layout_marginStart="@dimen/ui_margin_medium"
-        android:layout_marginBottom="@dimen/ui_margin_medium"/>
+        android:layout_marginBottom="@dimen/ui_margin_large"
+        map:backgroundTint="#ffffff"/>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/openfab"
         android:layout_width="74dp"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|center"
-        android:layout_marginBottom="@dimen/ui_margin_medium"
-        map:srcCompat="@android:drawable/ic_menu_compass" />
+        android:layout_marginBottom="@dimen/ui_margin_large"
+        map:srcCompat="@drawable/fab_route"
+        map:backgroundTint="#ffffff"/>
 
 
 </FrameLayout>

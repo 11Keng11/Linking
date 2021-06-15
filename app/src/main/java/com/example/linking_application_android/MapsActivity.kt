@@ -9,8 +9,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.location.Location
 import android.os.Build
 import android.os.Bundle
@@ -24,6 +22,7 @@ import androidx.fragment.app.FragmentActivity
 import androidx.viewbinding.BuildConfig
 import com.example.linking_application_android.compass.CompassBottomSheetFragment
 import com.example.linking_application_android.databinding.ActivityMapsBinding
+import com.example.linking_application_android.route.RouteGenFragment
 import com.example.linking_application_android.util.InternetUtil
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -51,15 +50,19 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
             : List<List<Any?>>? = null
     private var exerciseValues // List of excercise landmarks data [name, lon, lat, type]
             : List<List<Any?>>? = null
-    private var familyValues // List of family landmarks data [name, lon, lat, type]
+    private var playValues // List of play landmarks data [name, lon, lat, type]
+            : List<List<Any?>>? = null
+    private var generalValues // List of family landmarks data [name, lon, lat, type]
             : List<List<Any?>>? = null
 
     // Markers
     private var natureMarkers // ArrayList of nature markers
             : ArrayList<Marker>? = null
-    private var familyMarkers // ArrayList of family markers
+    private var playMarkers // ArrayList of play markers
             : ArrayList<Marker>? = null
     private var exerciseMarkers // ArrayList of exercise markers
+            : ArrayList<Marker>? = null
+    private var generalMarkers // ArrayList of general markers
             : ArrayList<Marker>? = null
 
     // FABs
@@ -67,17 +70,21 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
             : FabOption
     private lateinit var exFab // exercise filter fab
             : FabOption
-    private lateinit var famFab // family filter fab
+    private lateinit var plaFab // family filter fab
             : FabOption
-    private lateinit var bleTest // Test bluetooth scanning
+    private lateinit var genFab // general filter fab
+            : FabOption
+    private lateinit var bleFab // Test bluetooth scanning
             : FloatingActionButton
-    private lateinit var openFab // family filter fab
+    private lateinit var openFab // route gen and compass fab
             : FloatingActionButton
 
 
     private var natVisible = true // State - whether nature markers are visible
     private var exVisible = true // State - whether exercise markers are visible
-    private var famVisible = true // State - whether family markers are visible
+    private var plaVisible = true // State - whether play markers are visible
+    private var genVisible = true // State - whether general markers are visible
+    var isRoute = false // State - whether there is an active route
 
     // Google sheet keys.
     private var google_api_key: String = "AIzaSyDqJlXlJFXnGGjVXJs8maiUP5rE9oKsOB4"
@@ -132,27 +139,33 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
         // Set listeners for the landmarks filter
         natFab = findViewById(R.id.natfab)
         exFab = findViewById(R.id.exfab)
-        famFab = findViewById(R.id.famfab)
-        bleTest = findViewById(R.id.bletest)
+        plaFab = findViewById(R.id.plafab)
+        genFab = findViewById(R.id.genfab)
+        bleFab = findViewById(R.id.blefab)
         openFab = findViewById(R.id.openfab)
 
 
         natFab.setOnClickListener(View.OnClickListener {
             natVisible = !natVisible
-            changeVisibility(natFab, natureMarkers, natVisible)
+            changeVisibility(natureMarkers, natVisible)
         })
 
         exFab.setOnClickListener(View.OnClickListener {
             exVisible = !exVisible
-            changeVisibility(exFab, exerciseMarkers, exVisible)
+            changeVisibility(exerciseMarkers, exVisible)
         })
 
-        famFab.setOnClickListener(View.OnClickListener {
-            famVisible = !famVisible
-            changeVisibility(famFab, familyMarkers, famVisible)
+        plaFab.setOnClickListener(View.OnClickListener {
+            plaVisible = !plaVisible
+            changeVisibility(playMarkers, plaVisible)
         })
 
-        bleTest.setOnClickListener(View.OnClickListener {
+        genFab.setOnClickListener(View.OnClickListener {
+            genVisible = !genVisible
+            changeVisibility(generalMarkers, genVisible)
+        })
+
+        bleFab.setOnClickListener(View.OnClickListener {
             // Run your function to scan and print a toast if successful
             // I will use this as a condition to check whether a landmark has been visited.
 
@@ -173,13 +186,15 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
         })
 
         openFab.setOnClickListener(View.OnClickListener { // Run your function to scan and print a toast if successful
-            Toast.makeText(applicationContext, "Open Bottom Sheet Dialog",
-                Toast.LENGTH_LONG).show()
-
-            supportFragmentManager.let {
-                CompassBottomSheetFragment.newInstance(Bundle()).apply {
-                    show(it, tag)
+            if (isRoute) {
+                supportFragmentManager.let {
+                    CompassBottomSheetFragment.newInstance(Bundle()).apply {
+                        show(it, tag)
+                    }
                 }
+            } else {
+                var dialog = RouteGenFragment()
+                dialog.show(supportFragmentManager,"RouteGen")
             }
         })
     }
@@ -189,6 +204,10 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
         val internetUtil = InternetUtil()
         return internetUtil.isOnline(this.applicationContext)
     }
+
+//    fun setRoute( path : <List<Any?>) {
+//
+//    }
 
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
@@ -205,9 +224,10 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
         mMap!!.setLatLngBoundsForCameraTarget(tampinesBounds)
 
         // Add markers for landmarks
-        val natureIcon = getIcon("naturemarker", this, packageName)
-        val familyIcon = getIcon("familymarker", this, packageName)
-        val exerciseIcon = getIcon("exercisemarker", this, packageName)
+        val natureIcon = getIcon("marker_nature", this, packageName)
+        val playIcon = getIcon("marker_play", this, packageName)
+        val exerciseIcon = getIcon("marker_exercise", this, packageName)
+        val generalIcon = getIcon("marker_general", this, packageName)
 
         // Get marker values from google sheet
         val getMarkerValues = Thread(object : Runnable {
@@ -216,8 +236,9 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
                 while (!gotData) {
                     natureValues = readSheet("Nature!A2:D", sheetsService, google_api_key, sheet_id)
                     exerciseValues = readSheet("Exercise!A2:D", sheetsService, google_api_key, sheet_id)
-                    familyValues = readSheet("Family!A2:D", sheetsService, google_api_key, sheet_id)
-                    if (natureValues != null && exerciseValues != null && familyValues != null) {
+                    playValues = readSheet("Play!A2:D", sheetsService, google_api_key, sheet_id)
+                    generalValues = readSheet("General!A2:D", sheetsService, google_api_key, sheet_id)
+                    if (natureValues != null && exerciseValues != null && generalValues != null && generalValues != null) {
                         gotData = true
                         break
                     }
@@ -227,14 +248,15 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
         getMarkerValues.start()
 
         // Wait till values are read from google sheet
-        while (familyValues == null) {
+        while (generalValues == null) {
             continue
         }
 
         // Set the markers in the map
         natureMarkers = setMarkers(natureValues, mMap, natureIcon)
         exerciseMarkers = setMarkers(exerciseValues, mMap, exerciseIcon)
-        familyMarkers = setMarkers(familyValues, mMap, familyIcon)
+        playMarkers = setMarkers(playValues, mMap, playIcon)
+        generalMarkers = setMarkers(generalValues, mMap, generalIcon)
 
         // Center map on tampines and set zoom
         val tampines = LatLng(1.3525, 103.9447)
@@ -280,7 +302,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !isLocationPermissionGranted) {
             requestLocationPermission()
         } else {
-            setIsScanning(true, bleTest)
+            setIsScanning(true, bleFab)
             val intent = Intent(this, BLEService::class.java)
             startService(intent)
             isReceiverRegistered = true
@@ -289,7 +311,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
     }
     fun stopBleService() {
         Log.i("BLEService","Stop BLE Service.")
-        setIsScanning(false, bleTest)
+        setIsScanning(false, bleFab)
         val intent = Intent(this, BLEService::class.java)
         stopService(intent)
         Log.e("onStopr error", "stopping scan")
