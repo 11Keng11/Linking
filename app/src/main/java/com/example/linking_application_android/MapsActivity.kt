@@ -84,7 +84,10 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
     private var exVisible = true // State - whether exercise markers are visible
     private var plaVisible = true // State - whether play markers are visible
     private var genVisible = true // State - whether general markers are visible
+
     var isRoute = false // State - whether there is an active route
+    var path // ArrayList of markers for route
+        : ArrayList<Marker>? = null
 
     // Google sheet keys.
     private var google_api_key: String = "AIzaSyDqJlXlJFXnGGjVXJs8maiUP5rE9oKsOB4"
@@ -205,9 +208,29 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
         return internetUtil.isOnline(this.applicationContext)
     }
 
-//    fun setRoute( path : <List<Any?>) {
-//
-//    }
+    fun setRoute( route : ArrayList<String>) {
+
+        isRoute = true
+        val node_1 = getIcon("marker_1", this, packageName)
+        val node_2 = getIcon("marker_2", this, packageName)
+        val node_3 = getIcon("marker_3", this, packageName)
+        val node_4 = getIcon("marker_4", this, packageName)
+
+        for (mkr in natureMarkers!!) {
+            if (mkr.title == route.get(0)) {
+                mkr.setIcon(node_1)
+            } else if (mkr.title == route.get(3)) {
+                mkr.setIcon(node_4)
+            } else if (mkr.title == route.get(1)) {
+                mkr.setIcon(node_2)
+            }
+        }
+        for (mkr in generalMarkers!!) {
+            if (mkr.title == route.get(2)) {
+                mkr.setIcon(node_3)
+            }
+        }
+    }
 
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap

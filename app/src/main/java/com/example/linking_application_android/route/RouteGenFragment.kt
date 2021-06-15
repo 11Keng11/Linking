@@ -5,9 +5,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
+import com.example.linking_application_android.MapsActivity
 import com.example.linking_application_android.R
-import com.example.linking_application_android.changeVisibility
+import com.google.android.gms.maps.model.Marker
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import java.util.ArrayList
 
 class RouteGenFragment : DialogFragment() {
     private lateinit var closeFab // Close dialog
@@ -31,5 +33,16 @@ class RouteGenFragment : DialogFragment() {
         closeFab.setOnClickListener(View.OnClickListener {
             dismiss()
         })
+
+        nextFab.setOnClickListener(View.OnClickListener {
+            val route = ArrayList<String>()
+            route.add("NA20")
+            route.add("NA19")
+            route.add("G2")
+            route.add("NA12")
+            (activity as MapsActivity?)!!.setRoute(route)
+            dismiss()
+        })
+
     }
 }
