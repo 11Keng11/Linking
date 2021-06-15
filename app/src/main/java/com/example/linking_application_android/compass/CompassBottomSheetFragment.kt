@@ -6,13 +6,15 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat.getSystemService
 import com.example.linking_application_android.R
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+
 
 class CompassBottomSheetFragment : BottomSheetDialogFragment(), SensorEventListener {
 
@@ -23,14 +25,20 @@ class CompassBottomSheetFragment : BottomSheetDialogFragment(), SensorEventListe
     private val rotationMatrix = FloatArray(9)
     private val orientationAngles = FloatArray(3)
 
+    private var degrees: Int = 0
+
+    lateinit var mainHandler: Handler
+
+    private val compassUtil = CompassUtil()
 
     override fun onCreateView(
             inflater: LayoutInflater, container: ViewGroup?,
             savedInstanceState: Bundle?
     ): View? {
+
         sensorManager = this.activity?.getSystemService(Context.SENSOR_SERVICE) as SensorManager
 
-
+        mainHandler = Handler(Looper.getMainLooper())
 
         return inflater.inflate(R.layout.compass_bottom_sheet_layout, container, false)
     }
@@ -61,10 +69,14 @@ class CompassBottomSheetFragment : BottomSheetDialogFragment(), SensorEventListe
                 SensorManager.SENSOR_DELAY_UI
             )
         }
+
+        mainHandler.post(updateCompassTask)
     }
 
     override fun onPause() {
         super.onPause()
+
+        mainHandler.removeCallbacks(updateCompassTask)
 
         // Don't receive any more updates from either sensor.
         sensorManager.unregisterListener(this)
@@ -78,8 +90,6 @@ class CompassBottomSheetFragment : BottomSheetDialogFragment(), SensorEventListe
         } else if (event.sensor.type == Sensor.TYPE_MAGNETIC_FIELD) {
             System.arraycopy(event.values, 0, magnetometerReading, 0, magnetometerReading.size)
         }
-
-        updateOrientationAngles()
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
@@ -105,14 +115,30 @@ class CompassBottomSheetFragment : BottomSheetDialogFragment(), SensorEventListe
         // "orientationAngles" now has up-to-date information.
 
         // orientationAngles[0] points to North!
-        Log.d("Compass -Orientation",
-            "FST["
-                    + orientationAngles[0].toString()
-                    + "] SEC["
-                    + orientationAngles[1].toString()
-                    + "] TRD["
-                    + orientationAngles[2].toString()
-                    + "]")
+//        Log.d("Compass -Orientation",
+//            "FST["
+//                    + orientationAngles[0].toString()
+//                    + "] SEC["
+//                    + orientationAngles[1].toString()
+//                    + "] TRD["
+//                    + orientationAngles[2].toString()
+//                    + "]")
+    }
+
+    /**
+     * This function runs every 250ms.
+     */
+    private val updateCompassTask = object : Runnable {
+        override fun run() {
+            updateOrientationAngles()
+
+            degrees = compassUtil.radianToDegrees(orientationAngles[0])
+            Log.d("Compass -Azimuth", degrees.toString())
+
+            // Use degrees here for azimuth in degrees
+
+            mainHandler.postDelayed(this, 250)
+        }
     }
 
     companion object {
