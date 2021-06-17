@@ -12,16 +12,22 @@ import java.util.ArrayList
 import android.content.Context
 
 // Change visibility of markers
-fun changeVisibility(markers: ArrayList<Marker>?, isVisible: Boolean) {
-    for (m in markers!!) {
-        m.isVisible = isVisible
+fun changeVisibility(markers1: ArrayList<Marker>?, markers2: ArrayList<Marker>?, markers3: ArrayList<Marker>?, isVisible1: Boolean, isVisible2: Boolean, isVisible3: Boolean ) {
+    for (m1 in markers1!!) {
+        m1.isVisible = isVisible1
+    }
+    for (m2 in markers2!!) {
+        m2.isVisible = isVisible2
+    }
+    for (m3 in markers3!!) {
+        m3.isVisible = isVisible3
     }
 }
 
 // This method retrieves the correct icon for the respective markers. ie nature exercise and family
-fun getIcon(item: String?, context: Context, packageName: String): BitmapDescriptor {
+fun getIcon(item: String?, context: Context, packageName: String, width : Int , height : Int): BitmapDescriptor {
     val marker = BitmapFactory.decodeResource(context.getResources(),context.getResources().getIdentifier(item, "drawable", packageName))
-    val sizedMarker = Bitmap.createScaledBitmap(marker, 61, 90, false)
+    val sizedMarker = Bitmap.createScaledBitmap(marker, width, height, false)
     return BitmapDescriptorFactory.fromBitmap(sizedMarker)
 }
 
@@ -63,3 +69,16 @@ fun setMarkers(values: List<List<Any?>>?, mapObj: GoogleMap?, markerIcon: Bitmap
     }
     return markers
 }
+
+//fun getMarker(title : String, markerList : ArrayList<Marker>? , generalList: ArrayList<Marker>?) : Marker? {
+//    for (mkr in markerList!!) {
+//        if (mkr.title == title) {
+//            return mkr
+//        }
+//    }
+//    for (mkr in generalList!!) {
+//        if (mkr.title == title) {
+//            return mkr
+//        }
+//    }
+//}

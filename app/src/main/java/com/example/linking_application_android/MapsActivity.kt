@@ -40,6 +40,10 @@ import timber.log.Timber
 import timber.log.Timber.DebugTree
 import java.util.*
 import kotlin.jvm.internal.Intrinsics
+import nl.dionsegijn.konfetti.KonfettiView;
+import nl.dionsegijn.konfetti.models.Shape;
+import nl.dionsegijn.konfetti.models.Size;
+import android.graphics.Color;
 
 class MapsActivity : FragmentActivity(), OnMapReadyCallback {
     private var mMap: GoogleMap? = null
@@ -79,6 +83,8 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
     private lateinit var openFab // route gen and compass fab
             : FloatingActionButton
 
+    private lateinit var konfettiView
+            : KonfettiView
 
     private var natVisible = true // State - whether nature markers are visible
     private var exVisible = true // State - whether exercise markers are visible
@@ -86,8 +92,8 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
     private var genVisible = true // State - whether general markers are visible
 
     var isRoute = false // State - whether there is an active route
-    var path // ArrayList of markers for route
-        : ArrayList<Marker>? = null
+    val path = ArrayList<Marker>()
+    private var step : Int = -1
 
     // Google sheet keys.
     private var google_api_key: String = "AIzaSyDqJlXlJFXnGGjVXJs8maiUP5rE9oKsOB4"
@@ -147,25 +153,34 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
         bleFab = findViewById(R.id.blefab)
         openFab = findViewById(R.id.openfab)
 
+        konfettiView = findViewById(R.id.viewKonfetti)
 
         natFab.setOnClickListener(View.OnClickListener {
-            natVisible = !natVisible
-            changeVisibility(natureMarkers, natVisible)
+            natVisible = true
+            plaVisible = false
+            exVisible = false
+            changeVisibility(natureMarkers, exerciseMarkers, playMarkers, natVisible, exVisible, plaVisible)
         })
 
         exFab.setOnClickListener(View.OnClickListener {
-            exVisible = !exVisible
-            changeVisibility(exerciseMarkers, exVisible)
+            natVisible = false
+            plaVisible = false
+            exVisible = true
+            changeVisibility(natureMarkers, exerciseMarkers, playMarkers, natVisible, exVisible, plaVisible)
         })
 
         plaFab.setOnClickListener(View.OnClickListener {
-            plaVisible = !plaVisible
-            changeVisibility(playMarkers, plaVisible)
+            natVisible = false
+            plaVisible = true
+            exVisible = false
+            changeVisibility(natureMarkers, exerciseMarkers, playMarkers, natVisible, exVisible, plaVisible)
         })
 
         genFab.setOnClickListener(View.OnClickListener {
-            genVisible = !genVisible
-            changeVisibility(generalMarkers, genVisible)
+            natVisible = true
+            plaVisible = true
+            exVisible = true
+            changeVisibility(natureMarkers, exerciseMarkers, playMarkers, natVisible, exVisible, plaVisible)
         })
 
         bleFab.setOnClickListener(View.OnClickListener {
@@ -177,14 +192,16 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
                 startBleService()
                 Toast.makeText(applicationContext, "Starting Scan",
                     Toast.LENGTH_SHORT).show()
+                setReach()
+
             }
             else {
-//                Toast.makeText(applicationContext, "Stopping Scan",
-//                    Toast.LENGTH_SHORT).show()
-                Toast.makeText(applicationContext, "Restarting Scan",
+                Toast.makeText(applicationContext, "Stopping Scan",
                     Toast.LENGTH_SHORT).show()
+//                Toast.makeText(applicationContext, "Restarting Scan",
+//                    Toast.LENGTH_SHORT).show()
                 stopBleService()
-                startBleService()
+//                startBleService()
             }
         })
 
@@ -208,26 +225,55 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
         return internetUtil.isOnline(this.applicationContext)
     }
 
-    fun setRoute( route : ArrayList<String>) {
+    fun startKonfetti() {
+        konfettiView.build()
+            .addColors(Color.YELLOW, Color.GREEN, Color.MAGENTA)
+            .setDirection(0.0, 359.0)
+            .setSpeed(1f, 5f)
+            .setFadeOutEnabled(true)
+            .setTimeToLive(2000L)
+            .addShapes(Shape.Square, Shape.Circle)
+            .addSizes(Size(12))
+            .setPosition(-50f, konfettiView.width + 50f, -50f, -50f)
+            .streamFor(300, 5000L)
+    }
 
-        isRoute = true
-        val node_1 = getIcon("marker_1", this, packageName)
-        val node_2 = getIcon("marker_2", this, packageName)
-        val node_3 = getIcon("marker_3", this, packageName)
-        val node_4 = getIcon("marker_4", this, packageName)
-
-        for (mkr in natureMarkers!!) {
-            if (mkr.title == route.get(0)) {
-                mkr.setIcon(node_1)
-            } else if (mkr.title == route.get(3)) {
-                mkr.setIcon(node_4)
-            } else if (mkr.title == route.get(1)) {
-                mkr.setIcon(node_2)
-            }
+    // Fake function to set destination reach
+    fun setReach() {
+        val tick = getIcon("marker_done", this, packageName, 92, 135)
+        step += 1
+        if (step > 3) {
+            step = 0
+        } else if (step ==3) {
+            startKonfetti()
         }
-        for (mkr in generalMarkers!!) {
-            if (mkr.title == route.get(2)) {
-                mkr.setIcon(node_3)
+        path!!.get(step).setIcon(tick)
+    }
+
+    // Dumb function to set route
+    fun setRoute( route : ArrayList<String>) {
+        isRoute = true
+        var i = 0
+        for (node in route) {
+            val iconName = "marker_${i+1}"
+            if (node.get(0) == 'G') {
+                for (mkr in generalMarkers!!) {
+                    if (mkr.title == node) {
+                        path.add(mkr)
+                        val nodeIcon = getIcon(iconName, this, packageName, 92, 135)
+                        mkr.setIcon(nodeIcon)
+                        i +=1
+                    }
+                }
+            } else {
+                for (mkr in natureMarkers!!) {
+                    if (mkr.title == node) {
+                        path.add(mkr)
+                        val nodeIcon = getIcon(iconName, this, packageName, 92, 135)
+                        mkr.setIcon(nodeIcon)
+                        i +=1
+                    }
+                }
             }
         }
     }
@@ -247,10 +293,10 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
         mMap!!.setLatLngBoundsForCameraTarget(tampinesBounds)
 
         // Add markers for landmarks
-        val natureIcon = getIcon("marker_nature", this, packageName)
-        val playIcon = getIcon("marker_play", this, packageName)
-        val exerciseIcon = getIcon("marker_exercise", this, packageName)
-        val generalIcon = getIcon("marker_general", this, packageName)
+        val natureIcon = getIcon("marker_nature", this, packageName, 61, 90)
+        val playIcon = getIcon("marker_play", this, packageName, 61, 90)
+        val exerciseIcon = getIcon("marker_exercise", this, packageName, 61, 90)
+        val generalIcon = getIcon("marker_general", this, packageName, 61, 90)
 
         // Get marker values from google sheet
         val getMarkerValues = Thread(object : Runnable {
