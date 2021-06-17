@@ -9,6 +9,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.location.Location
 import android.os.Build
 import android.os.Bundle
@@ -36,17 +37,18 @@ import com.google.api.client.json.jackson2.JacksonFactory
 import com.google.api.services.sheets.v4.Sheets
 import com.nambimobile.widgets.efab.FabOption
 import mumayank.com.airlocationlibrary.AirLocation
+import nl.dionsegijn.konfetti.KonfettiView
+import nl.dionsegijn.konfetti.models.Shape
+import nl.dionsegijn.konfetti.models.Size
 import timber.log.Timber
 import timber.log.Timber.DebugTree
 import java.util.*
 import kotlin.jvm.internal.Intrinsics
-import nl.dionsegijn.konfetti.KonfettiView;
-import nl.dionsegijn.konfetti.models.Shape;
-import nl.dionsegijn.konfetti.models.Size;
-import android.graphics.Color;
+
 
 class MapsActivity : FragmentActivity(), OnMapReadyCallback {
     private var mMap: GoogleMap? = null
+    private val tampines = LatLng(1.3525, 103.9447)
     private var binding: ActivityMapsBinding? = null
 
     // Landmarks
@@ -86,14 +88,23 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
     private lateinit var konfettiView
             : KonfettiView
 
+    // Marker Icons for landmarks
+    private lateinit var natureIcon : BitmapDescriptor
+    private lateinit var playIcon : BitmapDescriptor
+    private lateinit var exerciseIcon : BitmapDescriptor
+    private lateinit var generalIcon : BitmapDescriptor
+
     private var natVisible = true // State - whether nature markers are visible
     private var exVisible = true // State - whether exercise markers are visible
     private var plaVisible = true // State - whether play markers are visible
     private var genVisible = true // State - whether general markers are visible
 
+    // Route
     var isRoute = false // State - whether there is an active route
     val path = ArrayList<Marker>()
     private var step : Int = -1
+    var curLocation : LatLng = LatLng(0.0,0.0)
+    var dstLocation : LatLng = LatLng(0.0,0.0)
 
     // Google sheet keys.
     private var google_api_key: String = "AIzaSyDqJlXlJFXnGGjVXJs8maiUP5rE9oKsOB4"
@@ -152,6 +163,12 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
         genFab = findViewById(R.id.genfab)
         bleFab = findViewById(R.id.blefab)
         openFab = findViewById(R.id.openfab)
+
+        // Marker Icons for landmarks
+        natureIcon = getIcon("marker_nature", this, packageName, 61, 90)
+        playIcon = getIcon("marker_play", this, packageName, 61, 90)
+        exerciseIcon = getIcon("marker_exercise", this, packageName, 61, 90)
+        generalIcon = getIcon("marker_general", this, packageName, 61, 90)
 
         konfettiView = findViewById(R.id.viewKonfetti)
 
@@ -225,7 +242,19 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
         return internetUtil.isOnline(this.applicationContext)
     }
 
-    fun startKonfetti() {
+    fun getDstTitle() : String {
+        return path.get(step+1).title
+    }
+
+    fun getDst() : LatLng {
+        return dstLocation
+    }
+
+    fun getCur() : LatLng {
+        return curLocation
+    }
+
+    private fun startKonfetti() {
         konfettiView.build()
             .addColors(Color.YELLOW, Color.GREEN, Color.MAGENTA)
             .setDirection(0.0, 359.0)
@@ -238,16 +267,39 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
             .streamFor(300, 5000L)
     }
 
+    // Function to reset route
+    private fun resetRoute() {
+        step = -1
+        dstLocation = LatLng(0.0,0.0)
+        isRoute = false
+        for (mkr in path) {
+            if (mkr.title.get(0) == 'G') {
+                mkr.setIcon(generalIcon)
+            } else {
+                mkr.setIcon(natureIcon)
+            }
+        }
+        path.clear()
+    }
+
     // Fake function to set destination reach
-    fun setReach() {
+    private fun setReach() {
         val tick = getIcon("marker_done", this, packageName, 92, 135)
         step += 1
-        if (step > 3) {
-            step = 0
-        } else if (step ==3) {
+        if (step ==3) {
+            path!!.get(step).setIcon(tick)
             startKonfetti()
+            resetRoute()
+        } else if (step < 3) {
+            dstLocation = path!!.get(step+1).position
+            path!!.get(step).setIcon(tick)
+            mMap!!.animateCamera(
+                CameraUpdateFactory.newLatLngZoom(dstLocation
+                    , 17.0f)
+            )
         }
-        path!!.get(step).setIcon(tick)
+
+
     }
 
     // Dumb function to set route
@@ -276,6 +328,12 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
                 }
             }
         }
+        dstLocation = path!!.get(0).position
+        mMap!!.animateCamera(
+            CameraUpdateFactory.newLatLngZoom(dstLocation
+            , 17.0f)
+        )
+
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
@@ -291,12 +349,6 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
                 LatLng(1.366954, 103.963879) // NE bounds
         )
         mMap!!.setLatLngBoundsForCameraTarget(tampinesBounds)
-
-        // Add markers for landmarks
-        val natureIcon = getIcon("marker_nature", this, packageName, 61, 90)
-        val playIcon = getIcon("marker_play", this, packageName, 61, 90)
-        val exerciseIcon = getIcon("marker_exercise", this, packageName, 61, 90)
-        val generalIcon = getIcon("marker_general", this, packageName, 61, 90)
 
         // Get marker values from google sheet
         val getMarkerValues = Thread(object : Runnable {
@@ -328,7 +380,6 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
         generalMarkers = setMarkers(generalValues, mMap, generalIcon)
 
         // Center map on tampines and set zoom
-        val tampines = LatLng(1.3525, 103.9447)
         mMap!!.moveCamera(CameraUpdateFactory.newLatLng(tampines))
         mMap!!.setMinZoomPreference(15.0f)
         mMap!!.setMaxZoomPreference(25.0f)
@@ -487,7 +538,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
     private val airLocation = AirLocation(this, object : AirLocation.Callback {
 
         override fun onSuccess(locations: ArrayList<Location>) {
-            Log.d("Location", locations.toString())
+            curLocation = LatLng(locations.get(0).latitude,locations.get(0).longitude)
         }
 
         override fun onFailure(locationFailedEnum: AirLocation.LocationFailedEnum) {

@@ -14,8 +14,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import com.example.linking_application_android.MapsActivity
 import com.example.linking_application_android.R
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import kotlin.math.roundToInt
 
 
 class CompassBottomSheetFragment : BottomSheetDialogFragment(), SensorEventListener {
@@ -35,6 +37,7 @@ class CompassBottomSheetFragment : BottomSheetDialogFragment(), SensorEventListe
 
     private var imageView: ImageView? = null
     private var textView: TextView? = null
+    private var destination : TextView? = null
 
     override fun onCreateView(
             inflater: LayoutInflater, container: ViewGroup?,
@@ -49,9 +52,10 @@ class CompassBottomSheetFragment : BottomSheetDialogFragment(), SensorEventListe
 
         imageView = root.findViewById(R.id.compassImageView)
         textView = root.findViewById(R.id.compassTextView)
+        destination = root.findViewById(R.id.dstName)
 
         textView!!.text = "300m"
-        imageView!!.rotation = 80F
+        imageView!!.rotation = 0F
 
         return root
     }
@@ -70,7 +74,7 @@ class CompassBottomSheetFragment : BottomSheetDialogFragment(), SensorEventListe
             sensorManager.registerListener(
                 this,
                 accelerometer,
-                SensorManager.SENSOR_DELAY_NORMAL,
+                SensorManager.SENSOR_DELAY_FASTEST,
                 SensorManager.SENSOR_DELAY_UI
             )
         }
@@ -139,7 +143,7 @@ class CompassBottomSheetFragment : BottomSheetDialogFragment(), SensorEventListe
     }
 
     /**
-     * This function runs every 250ms.
+     * This function runs every 25ms.
      */
     private val updateCompassTask = object : Runnable {
         override fun run() {
@@ -147,12 +151,20 @@ class CompassBottomSheetFragment : BottomSheetDialogFragment(), SensorEventListe
 
             degrees = compassUtil.radianToDegrees(orientationAngles[0])
             Log.d("Compass -Azimuth", degrees.toString())
+            var curLoc = (activity as MapsActivity?)!!.getCur()
+            var dstLoc = (activity as MapsActivity?)!!.getDst()
+            var bearing = compassUtil.angleFromCoordinate(curLoc,dstLoc)
+            imageView?.rotation = -(degrees.toFloat() - bearing.toFloat())
 
-            //imageView.rotation = degrees.toFloat()
+            var dst = compassUtil.distance(curLoc,dstLoc).roundToInt()
+            textView!!.text = "${dst.toString()}m"
+
+            var dstTitle = (activity as MapsActivity?)!!.getDstTitle()
+            destination!!.text = dstTitle
 
             // Use degrees here for azimuth in degrees
 
-            mainHandler.postDelayed(this, 250)
+            mainHandler.postDelayed(this, 25)
         }
     }
 

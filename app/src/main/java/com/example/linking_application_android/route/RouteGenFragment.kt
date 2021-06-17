@@ -1,15 +1,18 @@
 package com.example.linking_application_android.route
 
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
 import com.example.linking_application_android.MapsActivity
-import com.example.linking_application_android.R
-import com.google.android.gms.maps.model.Marker
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import java.util.ArrayList
+import java.util.*
+import android.graphics.Color;
+import com.example.linking_application_android.R
+
+
 
 class RouteGenFragment : DialogFragment() {
     private lateinit var closeFab // Close dialog
@@ -22,7 +25,12 @@ class RouteGenFragment : DialogFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_route_gen, container, false)
+        val view: View = inflater.inflate(R.layout.fragment_route_gen, container, false)
+        // Set transparent background
+        if (dialog != null && dialog!!.window != null) {
+            dialog!!.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        }
+        return view
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
