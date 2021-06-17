@@ -12,6 +12,8 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.TextView
 import com.example.linking_application_android.R
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
@@ -31,16 +33,27 @@ class CompassBottomSheetFragment : BottomSheetDialogFragment(), SensorEventListe
 
     private val compassUtil = CompassUtil()
 
+    private var imageView: ImageView? = null
+    private var textView: TextView? = null
+
     override fun onCreateView(
             inflater: LayoutInflater, container: ViewGroup?,
             savedInstanceState: Bundle?
     ): View? {
 
+        var root = inflater.inflate(R.layout.compass_bottom_sheet_layout, container, false)
+
         sensorManager = this.activity?.getSystemService(Context.SENSOR_SERVICE) as SensorManager
 
         mainHandler = Handler(Looper.getMainLooper())
 
-        return inflater.inflate(R.layout.compass_bottom_sheet_layout, container, false)
+        imageView = root.findViewById(R.id.compassImageView)
+        textView = root.findViewById(R.id.compassTextView)
+
+        textView!!.text = "300m"
+        imageView!!.rotation = 80F
+
+        return root
     }
 
     override fun onResume() {
@@ -134,6 +147,8 @@ class CompassBottomSheetFragment : BottomSheetDialogFragment(), SensorEventListe
 
             degrees = compassUtil.radianToDegrees(orientationAngles[0])
             Log.d("Compass -Azimuth", degrees.toString())
+
+            //imageView.rotation = degrees.toFloat()
 
             // Use degrees here for azimuth in degrees
 
