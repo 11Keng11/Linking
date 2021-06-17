@@ -50,8 +50,8 @@ class CompassBottomSheetFragment : BottomSheetDialogFragment(), SensorEventListe
         imageView = root.findViewById(R.id.compassImageView)
         textView = root.findViewById(R.id.compassTextView)
 
-        textView!!.text = "hello"
-        imageView!!.rotation = 0.9F
+        textView!!.text = "300m"
+        imageView!!.rotation = 80F
 
         return root
     }

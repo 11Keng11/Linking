@@ -6,20 +6,22 @@
     android:layout_height="match_parent"
     android:gravity="center_horizontal"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:background="#a2b16e">
 
-    <ImageView
+    <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/compassImageView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:srcCompat="@android:drawable/ic_btn_speak_now" />
+        android:layout_height="300dp"
+        app:srcCompat="@drawable/compass_arrow" />
 
     <TextView
         android:id="@+id/compassTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Compass to go here"
-        android:textSize="25sp" />
+        android:textSize="25sp"
+        android:textColor="#ffffff"/>
 
 </LinearLayout>
 
