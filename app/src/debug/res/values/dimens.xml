@@ -11,4 +11,5 @@
     <dimen name="text_size">16sp</dimen>
     <dimen name="text_size_large">18sp</dimen>
     <dimen name="text_size_xl">20sp</dimen>
+
 </resources>

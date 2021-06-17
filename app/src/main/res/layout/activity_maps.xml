@@ -32,7 +32,8 @@
             map:efab_icon="@drawable/fab_landmarks"
             map:efab_iconAnimationRotationDeg="-225"
             map:efab_closingAnticipateTension="0"
-            map:efab_fabOptionPosition="above"/>
+            map:efab_fabOptionPosition="above"
+            />
 <!--            map:label_text="Landmarks"/>-->
 
         <com.nambimobile.widgets.efab.FabOption
@@ -73,7 +74,8 @@
         android:layout_gravity="bottom|start"
         android:layout_marginStart="@dimen/ui_margin_medium"
         android:layout_marginBottom="@dimen/ui_margin_large"
-        map:backgroundTint="#ffffff"/>
+        map:backgroundTint="#ffffff"
+        map:fabSize="mini"/>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/openfab"
@@ -82,6 +84,7 @@
         android:layout_gravity="bottom|center"
         android:layout_marginBottom="@dimen/ui_margin_large"
         map:srcCompat="@drawable/fab_route"
-        map:backgroundTint="#ffffff"/>
+        map:backgroundTint="#ffffff"
+        map:fabSize="normal"/>
 
 </FrameLayout>

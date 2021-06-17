@@ -43,7 +43,6 @@ import kotlin.jvm.internal.Intrinsics
 import nl.dionsegijn.konfetti.KonfettiView;
 import nl.dionsegijn.konfetti.models.Shape;
 import nl.dionsegijn.konfetti.models.Size;
-import android.graphics.drawable.Drawable;
 import android.graphics.Color;
 
 class MapsActivity : FragmentActivity(), OnMapReadyCallback {
@@ -157,23 +156,31 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
         konfettiView = findViewById(R.id.viewKonfetti)
 
         natFab.setOnClickListener(View.OnClickListener {
-            natVisible = !natVisible
-            changeVisibility(natureMarkers, natVisible)
+            natVisible = true
+            plaVisible = false
+            exVisible = false
+            changeVisibility(natureMarkers, exerciseMarkers, playMarkers, natVisible, exVisible, plaVisible)
         })
 
         exFab.setOnClickListener(View.OnClickListener {
-            exVisible = !exVisible
-            changeVisibility(exerciseMarkers, exVisible)
+            natVisible = false
+            plaVisible = false
+            exVisible = true
+            changeVisibility(natureMarkers, exerciseMarkers, playMarkers, natVisible, exVisible, plaVisible)
         })
 
         plaFab.setOnClickListener(View.OnClickListener {
-            plaVisible = !plaVisible
-            changeVisibility(playMarkers, plaVisible)
+            natVisible = false
+            plaVisible = true
+            exVisible = false
+            changeVisibility(natureMarkers, exerciseMarkers, playMarkers, natVisible, exVisible, plaVisible)
         })
 
         genFab.setOnClickListener(View.OnClickListener {
-            genVisible = !genVisible
-            changeVisibility(generalMarkers, genVisible)
+            natVisible = true
+            plaVisible = true
+            exVisible = true
+            changeVisibility(natureMarkers, exerciseMarkers, playMarkers, natVisible, exVisible, plaVisible)
         })
 
         bleFab.setOnClickListener(View.OnClickListener {
@@ -219,9 +226,6 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
     }
 
     fun startKonfetti() {
-
-//        var drawable : Drawable = ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_star)
-//        var drawableShape : Shape = Shape.DrawableShape(drawable, true);
         konfettiView.build()
             .addColors(Color.YELLOW, Color.GREEN, Color.MAGENTA)
             .setDirection(0.0, 359.0)
@@ -246,33 +250,32 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
         path!!.get(step).setIcon(tick)
     }
 
-    // Fake function to set route
+    // Dumb function to set route
     fun setRoute( route : ArrayList<String>) {
         isRoute = true
-        val node_1 = getIcon("marker_1", this, packageName, 92, 135)
-        val node_2 = getIcon("marker_2", this, packageName, 92, 135)
-        val node_3 = getIcon("marker_3", this, packageName, 92, 135)
-        val node_4 = getIcon("marker_4", this, packageName, 92, 135)
-
-        for (mkr in natureMarkers!!) {
-            if (mkr.title == route.get(0)) {
-                mkr.setIcon(node_1)
-                path.add(mkr)
-            } else if (mkr.title == route.get(3)) {
-                mkr.setIcon(node_4)
-                path.add(mkr)
-            } else if (mkr.title == route.get(1)) {
-                mkr.setIcon(node_2)
-                path.add(mkr)
+        var i = 0
+        for (node in route) {
+            val iconName = "marker_${i+1}"
+            if (node.get(0) == 'G') {
+                for (mkr in generalMarkers!!) {
+                    if (mkr.title == node) {
+                        path.add(mkr)
+                        val nodeIcon = getIcon(iconName, this, packageName, 92, 135)
+                        mkr.setIcon(nodeIcon)
+                        i +=1
+                    }
+                }
+            } else {
+                for (mkr in natureMarkers!!) {
+                    if (mkr.title == node) {
+                        path.add(mkr)
+                        val nodeIcon = getIcon(iconName, this, packageName, 92, 135)
+                        mkr.setIcon(nodeIcon)
+                        i +=1
+                    }
+                }
             }
         }
-        for (mkr in generalMarkers!!) {
-            if (mkr.title == route.get(2)) {
-                mkr.setIcon(node_3)
-                path.add(1,mkr)
-            }
-        }
-        path.reverse()
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
