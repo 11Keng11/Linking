@@ -150,16 +150,21 @@ class CompassBottomSheetFragment : BottomSheetDialogFragment(), SensorEventListe
             updateOrientationAngles()
 
             degrees = compassUtil.radianToDegrees(orientationAngles[0])
-            Log.d("Compass -Azimuth", degrees.toString())
             var curLoc = (activity as MapsActivity?)!!.getCur()
             var dstLoc = (activity as MapsActivity?)!!.getDst()
             var bearing = compassUtil.angleFromCoordinate(curLoc,dstLoc)
-            imageView?.rotation = -(degrees.toFloat() - bearing.toFloat())
+            Log.d("Compass -Azimuth", bearing.toString())
+            var rot = -(degrees.toFloat() - bearing.toFloat())
+            imageView?.rotation = rot
 
             var dst = compassUtil.distance(curLoc,dstLoc).roundToInt()
             textView!!.text = "${dst.toString()}m"
 
             var dstTitle = (activity as MapsActivity?)!!.getDstTitle()
+            Log.d("North", degrees.toString())
+            Log.d("bearing", bearing.toString())
+            Log.d("rotate", rot.toString())
+
             destination!!.text = dstTitle
 
             // Use degrees here for azimuth in degrees
