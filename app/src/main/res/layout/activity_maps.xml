@@ -62,7 +62,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             map:fab_color="#f3ae49"
-            map:fab_icon="@drawable/fab_general" />
+            map:fab_icon="@drawable/fab_gem" />
 
     </com.nambimobile.widgets.efab.ExpandableFabLayout>
 

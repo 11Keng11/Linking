@@ -168,7 +168,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
         natureIcon = getIcon("marker_nature", this, packageName, 61, 90)
         playIcon = getIcon("marker_play", this, packageName, 61, 90)
         exerciseIcon = getIcon("marker_exercise", this, packageName, 61, 90)
-        generalIcon = getIcon("marker_general", this, packageName, 61, 90)
+        generalIcon = getIcon("marker_gem", this, packageName, 61, 90)
 
         konfettiView = findViewById(R.id.viewKonfetti)
 
@@ -209,7 +209,10 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
                 startBleService()
                 Toast.makeText(applicationContext, "Starting Scan",
                     Toast.LENGTH_SHORT).show()
-                setReach()
+                if (isRoute) {
+                    setReach()
+                }
+
 
             }
             else {
@@ -269,6 +272,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
 
     // Function to reset route
     private fun resetRoute() {
+        openFab.setImageDrawable(getResources().getDrawable(R.drawable.fab_route))
         step = -1
         dstLocation = LatLng(0.0,0.0)
         isRoute = false
@@ -280,17 +284,22 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
             }
         }
         path.clear()
+        mMap!!.animateCamera(
+            CameraUpdateFactory.newLatLngZoom(
+                LatLng(1.3539,103.9360)
+                , 16.0f)
+        )
     }
 
     // Fake function to set destination reach
     private fun setReach() {
         val tick = getIcon("marker_done", this, packageName, 92, 135)
         step += 1
-        if (step ==3) {
+        if (step ==2) {
             path!!.get(step).setIcon(tick)
             startKonfetti()
             resetRoute()
-        } else if (step < 3) {
+        } else if (step < 2) {
             dstLocation = path!!.get(step+1).position
             path!!.get(step).setIcon(tick)
             mMap!!.animateCamera(
@@ -305,6 +314,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
     // Dumb function to set route
     fun setRoute( route : ArrayList<String>) {
         isRoute = true
+        openFab.setImageDrawable(getResources().getDrawable(R.drawable.fab_compass))
         var i = 0
         for (node in route) {
             val iconName = "marker_${i+1}"

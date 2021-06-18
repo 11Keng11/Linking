@@ -16,6 +16,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import com.example.linking_application_android.MapsActivity
 import com.example.linking_application_android.R
+import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import kotlin.math.roundToInt
 
@@ -153,7 +154,7 @@ class CompassBottomSheetFragment : BottomSheetDialogFragment(), SensorEventListe
             var curLoc = (activity as MapsActivity?)!!.getCur()
             var dstLoc = (activity as MapsActivity?)!!.getDst()
             var bearing = compassUtil.angleFromCoordinate(curLoc,dstLoc)
-            Log.d("Compass -Azimuth", bearing.toString())
+//            Log.d("Compass -Azimuth", bearing.toString())
             var rot = -(degrees.toFloat() - bearing.toFloat())
             imageView?.rotation = rot
 
@@ -161,9 +162,9 @@ class CompassBottomSheetFragment : BottomSheetDialogFragment(), SensorEventListe
             textView!!.text = "${dst.toString()}m"
 
             var dstTitle = (activity as MapsActivity?)!!.getDstTitle()
-            Log.d("North", degrees.toString())
-            Log.d("bearing", bearing.toString())
-            Log.d("rotate", rot.toString())
+//            Log.d("North", degrees.toString())
+//            Log.d("bearing", bearing.toString())
+//            Log.d("rotate", rot.toString())
 
             destination!!.text = dstTitle
 
