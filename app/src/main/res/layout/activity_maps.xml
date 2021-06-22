@@ -25,44 +25,55 @@
             android:id="@+id/landmarks"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom|end"
-            android:layout_marginBottom="@dimen/ui_margin_xl"
+            android:layout_gravity="top|end"
+            android:layout_marginTop="@dimen/ui_margin_xl"
             android:layout_marginEnd="@dimen/ui_margin_medium"
             map:efab_color="#ffffff"
             map:efab_icon="@drawable/fab_landmarks"
             map:efab_iconAnimationRotationDeg="-225"
             map:efab_closingAnticipateTension="0"
-            map:efab_fabOptionPosition="above"
+            map:efab_fabOptionPosition="below"
+            map:label_text="themes"
+            map:label_backgroundColor="#ffffff"
+            map:label_textColor="#000000"
+            map:label_visibleToHiddenAnimationDurationMs="1000"
             />
-<!--            map:label_text="Landmarks"/>-->
 
         <com.nambimobile.widgets.efab.FabOption
             android:id="@+id/natfab"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             map:fab_color="#51ae6e"
-            map:fab_icon="@drawable/fab_nature" />
+            map:fab_icon="@drawable/fab_nature"
+            map:label_text="nature"
+            map:label_backgroundColor="#51ae6e"/>
 
         <com.nambimobile.widgets.efab.FabOption
             android:id="@+id/exfab"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             map:fab_color="#eb4a47"
-            map:fab_icon="@drawable/fab_exercise" />
+            map:fab_icon="@drawable/fab_exercise"
+            map:label_text="exercise"
+            map:label_backgroundColor="#eb4a47"/>
 
         <com.nambimobile.widgets.efab.FabOption
             android:id="@+id/plafab"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             map:fab_color="#6a89f7"
-            map:fab_icon="@drawable/fab_play" />
+            map:fab_icon="@drawable/fab_play"
+            map:label_text="play"
+            map:label_backgroundColor="#6a89f7"/>
 
         <com.nambimobile.widgets.efab.FabOption
             android:id="@+id/genfab"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             map:fab_color="#f3ae49"
-            map:fab_icon="@drawable/fab_gem" />
+            map:fab_icon="@drawable/fab_gem"
+            map:label_text="gems"
+            map:label_backgroundColor="#f3ae49"/>
 
     </com.nambimobile.widgets.efab.ExpandableFabLayout>
 

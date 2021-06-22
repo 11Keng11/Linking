@@ -97,7 +97,6 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
     private var natVisible = true // State - whether nature markers are visible
     private var exVisible = true // State - whether exercise markers are visible
     private var plaVisible = true // State - whether play markers are visible
-    private var genVisible = true // State - whether general markers are visible
 
     // Route
     var isRoute = false // State - whether there is an active route
@@ -212,8 +211,6 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
                 if (isRoute) {
                     setReach()
                 }
-
-
             }
             else {
                 Toast.makeText(applicationContext, "Stopping Scan",
@@ -224,6 +221,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
 //                startBleService()
             }
         })
+        bleFab.setAlpha(0.0f)
 
         openFab.setOnClickListener(View.OnClickListener { // Run your function to scan and print a toast if successful
             if (isRoute) {

@@ -1,35 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="500dp"
-    android:gravity="center_horizontal"
-    android:orientation="vertical"
+    android:layout_height="400dp"
     android:padding="16dp"
     android:background="#a2b16e">
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/compassImageView"
         android:layout_width="match_parent"
-        android:layout_height="250dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
         app:srcCompat="@drawable/compass_arrow" />
 
-    <TextView
-        android:id="@+id/dstName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Destination Name"
-        android:textSize="40sp"
-        android:textColor="#ffffff"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center">
 
-    <TextView
-        android:id="@+id/compassTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Compass to go here"
-        android:textSize="40sp"
-        android:textColor="#ffffff"/>
+        <TextView
+            android:id="@+id/dstName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Destination Name"
+            android:textSize="40sp"
+            android:textColor="#ffffff"/>
 
-</LinearLayout>
+        <TextView
+            android:id="@+id/compassTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Compass to go here"
+            android:textSize="40sp"
+            android:textColor="#ffffff"/>
+    </LinearLayout>
+
+</FrameLayout>
 
