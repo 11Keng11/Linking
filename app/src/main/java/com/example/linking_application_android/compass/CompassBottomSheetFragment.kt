@@ -154,17 +154,17 @@ class CompassBottomSheetFragment : BottomSheetDialogFragment(), SensorEventListe
             var curLoc = (activity as MapsActivity?)!!.getCur()
             var dstLoc = (activity as MapsActivity?)!!.getDst()
             var bearing = compassUtil.angleFromCoordinate(curLoc,dstLoc)
-//            Log.d("Compass -Azimuth", bearing.toString())
-            var rot = -(degrees.toFloat() - bearing.toFloat())
+            var rot = compassUtil.getAssetRotation(degrees.toFloat(),curLoc,dstLoc)
             imageView?.rotation = rot
 
             var dst = compassUtil.distance(curLoc,dstLoc).roundToInt()
             textView!!.text = "${dst.toString()}m"
 
             var dstTitle = (activity as MapsActivity?)!!.getDstTitle()
-//            Log.d("North", degrees.toString())
-//            Log.d("bearing", bearing.toString())
-//            Log.d("rotate", rot.toString())
+//            Log.d("Azimuth", degrees.toString())
+//            Log.d("curLoc", curLoc.toString())
+//            Log.d("dstLoc", dstLoc.toString())
+//            Log.d("rot", rot.toString())
 
             destination!!.text = dstTitle
 

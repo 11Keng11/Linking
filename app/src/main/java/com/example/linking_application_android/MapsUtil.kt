@@ -70,15 +70,4 @@ fun setMarkers(values: List<List<Any?>>?, mapObj: GoogleMap?, markerIcon: Bitmap
     return markers
 }
 
-//fun getMarker(title : String, markerList : ArrayList<Marker>? , generalList: ArrayList<Marker>?) : Marker? {
-//    for (mkr in markerList!!) {
-//        if (mkr.title == title) {
-//            return mkr
-//        }
-//    }
-//    for (mkr in generalList!!) {
-//        if (mkr.title == title) {
-//            return mkr
-//        }
-//    }
-//}
+

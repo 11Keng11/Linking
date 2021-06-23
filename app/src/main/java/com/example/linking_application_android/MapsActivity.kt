@@ -101,7 +101,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
     // Route
     var isRoute = false // State - whether there is an active route
     val path = ArrayList<Marker>()
-    private var step : Int = -1
+    var step : Int = -1
     var curLocation : LatLng = LatLng(0.0,0.0)
     var dstLocation : LatLng = LatLng(0.0,0.0)
 
@@ -293,11 +293,11 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
     private fun setReach() {
         val tick = getIcon("marker_done", this, packageName, 92, 135)
         step += 1
-        if (step ==2) {
+        if (step ==3) {
             path!!.get(step).setIcon(tick)
             startKonfetti()
             resetRoute()
-        } else if (step < 2) {
+        } else if (step < 3) {
             dstLocation = path!!.get(step+1).position
             path!!.get(step).setIcon(tick)
             mMap!!.animateCamera(
@@ -305,8 +305,6 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
                     , 17.0f)
             )
         }
-
-
     }
 
     // Dumb function to set route
@@ -341,7 +339,6 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
             CameraUpdateFactory.newLatLngZoom(dstLocation
             , 17.0f)
         )
-
     }
 
     override fun onMapReady(googleMap: GoogleMap) {

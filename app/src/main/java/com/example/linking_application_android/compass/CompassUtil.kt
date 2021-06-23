@@ -49,4 +49,10 @@ class CompassUtil {
         var distance = R * c * 1000 // convert to meters
         return distance
     }
+
+    fun getAssetRotation (azimuth : Float, curLoc: LatLng, dstLoc: LatLng ) : Float {
+        var bearing = angleFromCoordinate(curLoc,dstLoc)
+        var rot = -(azimuth - bearing.toFloat())
+        return rot
+    }
 }
