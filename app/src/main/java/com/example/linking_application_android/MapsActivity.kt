@@ -209,7 +209,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
                 Toast.makeText(applicationContext, "Starting Scan",
                     Toast.LENGTH_SHORT).show()
                 if (isRoute) {
-                    setReach()
+//                    setReach()
                 }
             }
             else {
@@ -414,6 +414,9 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
                 stopBleService()
                 Toast.makeText(applicationContext, "Successful BLE!",
                         Toast.LENGTH_LONG).show()
+                if(isRoute) {
+                    setReach()
+                }
             }
         }
     }
