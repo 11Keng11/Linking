@@ -19,6 +19,7 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 import androidx.fragment.app.FragmentActivity
 import androidx.viewbinding.BuildConfig
 import com.example.linking_application_android.compass.CompassBottomSheetFragment
@@ -431,7 +432,14 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
             requestLocationPermission()
         } else {
             setIsScanning(true, bleFab)
-            val intent = Intent(this, BLEService::class.java)
+            /*
+                Can use this for the landmarks ids -> each beacon will follow this ids
+                Use https://www.uuidgenerator.net/version1 to generate the UUID
+             */
+            val uuid = "4fafc255-1fb5-459e-8fcc-c5c9c331914b" // "4fafc201-1fb5-459e-8fcc-c5c9c331914b" //
+            val intent = Intent("BLEServiceAction", "BLEServiceUri".toUri(), this, BLEService::class.java).apply {
+                putExtra("DeviceUUID", uuid)
+            }
             startService(intent)
             isReceiverRegistered = true
             registerReceiver(receiver, IntentFilter("GET_HELLO"))

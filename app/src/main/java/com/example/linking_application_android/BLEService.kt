@@ -6,12 +6,13 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
 import android.bluetooth.le.ScanCallback
+import android.bluetooth.le.ScanFilter
 import android.bluetooth.le.ScanResult
 import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.IBinder
-import android.util.Log
+import android.os.ParcelUuid
 import androidx.annotation.RequiresApi
 import com.example.linking_application_android.ble.ConnectionEventListener
 import com.example.linking_application_android.ble.ConnectionManager
@@ -19,13 +20,13 @@ import com.example.linking_application_android.ble.findCharacteristic
 import com.example.linking_application_android.ble.toHexString
 import timber.log.Timber
 import java.util.*
-import kotlin.math.pow
 
 
 private  const val FILTER_DEVICE_NAME = "BeaconS23"
 private  const val RSSI_THRESHOLD_SCAN_DISTANCE = -70 //Current estimate there should be a better way to ensure the proper scan radius
 private  const val CHARACTERISTIC_UUID = "beb5483e-36e1-4688-b7f5-ea07361b26a8"
 
+private var FILTER_DEVICE_UUID: ParcelUuid = ParcelUuid(UUID.fromString("4fafc201-1fb5-459e-8fcc-c5c9c331914b"))
 
 class BLEService : Service() {
 
@@ -61,9 +62,13 @@ class BLEService : Service() {
     private val scanSettings = android.bluetooth.le.ScanSettings.Builder()
         .setScanMode(android.bluetooth.le.ScanSettings.SCAN_MODE_LOW_LATENCY)
         .build()
-    private val filter = android.bluetooth.le.ScanFilter.Builder().setDeviceName(
-        FILTER_DEVICE_NAME
-    ).build()
+//    private val filter = android.bluetooth.le.ScanFilter.Builder().setDeviceName(
+//        FILTER_DEVICE_NAME
+//    ).build()
+//    private val filter = android.bluetooth.le.ScanFilter.Builder().setServiceUuid(
+//        FILTER_DEVICE_UUID
+//    ).build()
+    private lateinit var filter: ScanFilter
 
     override fun onCreate() {
         super.onCreate()
@@ -72,6 +77,11 @@ class BLEService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         isScanning = true
+        FILTER_DEVICE_UUID = ParcelUuid(UUID.fromString(intent?.getStringExtra("DeviceUUID")))
+//        Log.i("BLEService", "Device UUID: $FILTER_DEVICE_UUID")
+        filter = android.bluetooth.le.ScanFilter.Builder().setServiceUuid(
+            FILTER_DEVICE_UUID
+        ).build()
         bleScanner.startScan(listOf(filter), scanSettings, scanCallback)
 
         return START_STICKY
