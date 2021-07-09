@@ -392,6 +392,9 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
 
     }
 
+    /* BeaconS23 */
+    private var b23BatteryLevel = 0.0
+
     /*  Bluetooth  */
     private var isScanning = false
     private var bluetoothManager: BluetoothManager? = null
@@ -411,7 +414,8 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
             @SuppressLint("TimberArgCount")
             override fun onReceive(context: Context?, intent: Intent) {
                 Intrinsics.checkNotNullParameter(intent, "intent")
-                Timber.i("Hello from BLEService!")
+                b23BatteryLevel = intent.getDoubleExtra("BS3_battery_Level",0.0)
+                Log.i("ble23", "Hello from BLEService! $b23BatteryLevel")
                 stopBleService()
                 Toast.makeText(applicationContext, "Successful BLE!",
                         Toast.LENGTH_LONG).show()
@@ -436,7 +440,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
                 Can use this for the landmarks ids -> each beacon will follow this ids
                 Use https://www.uuidgenerator.net/version1 to generate the UUID
              */
-            val uuid = "4fafc201-1fb5-459e-8fcc-c5c9c331914b" // "4fafc255-1fb5-459e-8fcc-c5c9c331914b" //
+            val uuid = "4fafc255-1fb5-459e-8fcc-c5c9c331914b" // "4fafc201-1fb5-459e-8fcc-c5c9c331914b" //
             val intent = Intent("BLEServiceAction", "BLEServiceUri".toUri(), this, BLEService::class.java).apply {
                 putExtra("DeviceUUID", uuid)
             }

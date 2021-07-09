@@ -13,6 +13,7 @@ import android.content.Intent
 import android.os.Build
 import android.os.IBinder
 import android.os.ParcelUuid
+import android.util.Log
 import androidx.annotation.RequiresApi
 import com.example.linking_application_android.ble.ConnectionEventListener
 import com.example.linking_application_android.ble.ConnectionManager
@@ -30,11 +31,12 @@ private var FILTER_DEVICE_UUID: ParcelUuid = ParcelUuid(UUID.fromString("4fafc20
 
 class BLEService : Service() {
 
+    private var b23BatteryLevel = 0.0
 
     private fun sendDataToActivity() {
         val sendLevel = Intent()
         sendLevel.action = "GET_HELLO"
-        sendLevel.putExtra("LEVEL_DATA", "Strength_Value")
+        sendLevel.putExtra("BS3_battery_Level", b23BatteryLevel)
         sendBroadcast(sendLevel)
     }
 
@@ -178,7 +180,8 @@ class BLEService : Service() {
             }
 
             onCharacteristicRead = { _, characteristic ->
-                Timber.i("Read from ${characteristic.uuid}: ${characteristic.value.toHexString()}")
+                Log.i("ble23", "Read from ${characteristic.uuid}: ${characteristic.value.toHexString()}")
+                b23BatteryLevel = characteristic.value.decodeToString().split(" ")[2].toDouble()
                 val toSendString = "Hello From BLEService".toByteArray()
                 ConnectionManager.writeCharacteristic(scannedResult.device,characteristic,toSendString)
             }
