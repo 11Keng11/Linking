@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.application'
     id 'kotlin-android'
+    id 'com.google.gms.google-services'
 }
 
 android {
@@ -61,5 +62,8 @@ dependencies {
     // JUnit5 testing
     testImplementation(platform('org.junit:junit-bom:5.7.0'))
     testImplementation('org.junit.jupiter:junit-jupiter')
+
+    // Firebase
+    implementation platform('com.google.firebase:firebase-bom:28.2.1')
 
 }
