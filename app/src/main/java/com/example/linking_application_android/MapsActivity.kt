@@ -104,7 +104,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
     val path = ArrayList<Marker>()
     var step : Int = -1
     var curLocation : LatLng = LatLng(0.0,0.0)
-    var dstLocation : LatLng = LatLng(0.0,0.0)
+    var dstLocation : LatLng = LatLng(1.3408436,103.9620222)
 
     // Google sheet keys.
     private var google_api_key: String = "AIzaSyDqJlXlJFXnGGjVXJs8maiUP5rE9oKsOB4"
@@ -201,9 +201,6 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
         })
 
         bleFab.setOnClickListener(View.OnClickListener {
-            // Run your function to scan and print a toast if successful
-            // I will use this as a condition to check whether a landmark has been visited.
-
             /*  Bluetooth  */
             if (!isScanning) {
                 startBleService()
@@ -216,10 +213,9 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
             else {
                 Toast.makeText(applicationContext, "Stopping Scan",
                     Toast.LENGTH_SHORT).show()
-//                Toast.makeText(applicationContext, "Restarting Scan",
-//                    Toast.LENGTH_SHORT).show()
+
                 stopBleService()
-//                startBleService()
+
             }
         })
         bleFab.setAlpha(0.0f)
@@ -435,7 +431,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !isLocationPermissionGranted) {
             requestLocationPermission()
         } else {
-            setIsScanning(true, bleFab)
+            setIsScanning(true)
             /*
                 Can use this for the landmarks ids -> each beacon will follow this ids
                 Use https://www.uuidgenerator.net/version1 to generate the UUID
@@ -451,20 +447,16 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
     }
     fun stopBleService() {
         Log.i("BLEService","Stop BLE Service.")
-        setIsScanning(false, bleFab)
+        setIsScanning(false)
         val intent = Intent(this, BLEService::class.java)
         stopService(intent)
         Log.e("onStopr error", "stopping scan")
     }
 
-    private fun setIsScanning(isScan: Boolean, button: FloatingActionButton?) {
+    private fun setIsScanning(isScan: Boolean) {
         isScanning = isScan
 
-//        if (isScan){
-//            button.setText("Stop scan");
-//        } else{
-//            button.setText("Start scan");
-//        }
+
     }
 
     override fun onRequestPermissionsResult(
@@ -559,6 +551,15 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
 
         override fun onSuccess(locations: ArrayList<Location>) {
             curLocation = LatLng(locations.get(0).latitude,locations.get(0).longitude)
+            var distLeft = distanceBetween(curLocation, dstLocation)
+            if (distLeft < 2.0) {
+                if (!isScanning) {
+                    startBleService()
+                    Toast.makeText(applicationContext, "Starting Scan",
+                        Toast.LENGTH_SHORT).show()
+                }
+            }
+
         }
 
         override fun onFailure(locationFailedEnum: AirLocation.LocationFailedEnum) {
