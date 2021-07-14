@@ -440,7 +440,13 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
                 Can use this for the landmarks ids -> each beacon will follow this ids
                 Use https://www.uuidgenerator.net/version1 to generate the UUID
              */
-            val uuid = "4fafc201-1fb5-459e-8fcc-c5c9c331914b" // "4fafc255-1fb5-459e-8fcc-c5c9c331914b" //
+
+            //UUIDs
+            // "b6e4af9e-e48a-11eb-ba80-0242ac130004"
+            // "c0b9a99a-e488-11eb-ba80-0242ac130004"
+            // “71e81e3a-e48a-11eb-ba80-0242ac130004”
+
+            val uuid = "b6e4af9e-e48a-11eb-ba80-0242ac130004" 
             val intent = Intent("BLEServiceAction", "BLEServiceUri".toUri(), this, BLEService::class.java).apply {
                 putExtra("DeviceUUID", uuid)
             }
