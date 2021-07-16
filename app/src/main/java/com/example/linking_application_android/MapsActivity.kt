@@ -9,6 +9,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.graphics.Color
 import android.location.Location
 import android.os.Build
@@ -24,6 +25,8 @@ import androidx.fragment.app.FragmentActivity
 import androidx.viewbinding.BuildConfig
 import com.example.linking_application_android.compass.CompassBottomSheetFragment
 import com.example.linking_application_android.databinding.ActivityMapsBinding
+import com.example.linking_application_android.helper.BitmapHelper
+import com.example.linking_application_android.helper.StorageHelper
 import com.example.linking_application_android.route.RouteGenFragment
 import com.example.linking_application_android.util.InternetUtil
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -415,7 +418,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
             override fun onReceive(context: Context?, intent: Intent) {
                 Intrinsics.checkNotNullParameter(intent, "intent")
                 b23BatteryLevel = intent.getDoubleExtra("BS3_battery_Level",0.0)
-                Log.i("ble23", "Hello from BLEService! $b23BatteryLevel")
+                Log.i("ble23", "Hello from BeaconS23! $b23BatteryLevel")
                 stopBleService()
                 Toast.makeText(applicationContext, "Successful BLE!",
                         Toast.LENGTH_LONG).show()
@@ -431,6 +434,9 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
 
     private fun startBleService() {
         Timber.i("Start BLE service")
+
+//        val c = applicationContext
+//        val pikachuBitmap = BitmapHelper.readBitmapFromUri(c, StorageHelper.getResUri(c, R.raw.pikachu))
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !isLocationPermissionGranted) {
             requestLocationPermission()
@@ -449,6 +455,8 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
             val uuid = "b6e4af9e-e48a-11eb-ba80-0242ac130004" 
             val intent = Intent("BLEServiceAction", "BLEServiceUri".toUri(), this, BLEService::class.java).apply {
                 putExtra("DeviceUUID", uuid)
+//                putExtra("Message_to_send",
+//                    pikachuBitmap?.let { BitmapHelper.convertBitmapToByteArrayUncompressed(it) })
             }
             startService(intent)
             isReceiverRegistered = true

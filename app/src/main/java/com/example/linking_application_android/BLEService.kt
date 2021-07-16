@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Service
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothManager
 import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanFilter
@@ -19,8 +20,11 @@ import com.example.linking_application_android.ble.ConnectionEventListener
 import com.example.linking_application_android.ble.ConnectionManager
 import com.example.linking_application_android.ble.findCharacteristic
 import com.example.linking_application_android.ble.toHexString
+import com.example.linking_application_android.helper.BitmapHelper
+import com.example.linking_application_android.helper.StorageHelper
 import timber.log.Timber
 import java.util.*
+import kotlin.math.floor
 
 
 private  const val FILTER_DEVICE_NAME = "BeaconS23"
@@ -28,8 +32,15 @@ private  const val RSSI_THRESHOLD_SCAN_DISTANCE = -80//-70 //Current estimate th
 private  const val CHARACTERISTIC_UUID = "beb5483e-36e1-4688-b7f5-ea07361b26a8"
 
 private var FILTER_DEVICE_UUID: ParcelUuid = ParcelUuid(UUID.fromString("4fafc201-1fb5-459e-8fcc-c5c9c331914b"))
+private val TX_ID = "61"
 
 class BLEService : Service() {
+
+    private var still_sending = false
+    private lateinit var message_to_send: ByteArray
+    private lateinit var chunked_msg_to_send: Array<ByteArray>
+    private var send_count = 0
+    private var send_str = listOf<Byte>()
 
     private var b23BatteryLevel = 0.0
 
@@ -75,9 +86,33 @@ class BLEService : Service() {
     override fun onCreate() {
         super.onCreate()
         ConnectionManager.registerListener(connectionEventListener)
+
+        val c = applicationContext
+        val message_to_send_str = StorageHelper.getCSVFromUri(c, StorageHelper.getResUri(c, R.raw.test_img))
+        message_to_send = cleanListStringToString(message_to_send_str).hexToBytes()
+//        println("hello:...... ${message_to_send.size} -> ${message_to_send.toHexString()}")
+
+        // m = 0 : 500*0..500*1-1   : 0..499
+        // m = 1 : 500*1..500*2-1   : 500..999
+        // m = 2 : 500*2..500*3-1   : 1000..1499
+        // m = 3 : 500*3..500*4-1   : 1500..1999
+        // m = 4 : 500*4..500*5-1   : 2000..2499
+        // m = 50: 500*50..500*51-1 : 25000..25499
+        // m = 60: 500*60..500*61-1 : 30000..30499
+        // m = 61: 500*61..500*62-1 : 30500..30720 -> 30999
+        for (send_count in 0 until message_to_send.size) {
+            if (send_count <= 60) {
+                send_str +=
+                    message_to_send.slice((500 * send_count) until 500 * (send_count + 1))
+            } else {
+                send_str +=
+                    message_to_send.slice((500 * send_count) until (message_to_send.size - 1))
+            }
+        }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+
         isScanning = true
         FILTER_DEVICE_UUID = ParcelUuid(UUID.fromString(intent?.getStringExtra("DeviceUUID")))
 //        Log.i("BLEService", "Device UUID: $FILTER_DEVICE_UUID")
@@ -161,6 +196,8 @@ class BLEService : Service() {
         this.stopSelf()
     }
 
+    private lateinit var bleGatt: BluetoothGatt
+
     private val connectionEventListener by lazy {
         ConnectionEventListener().apply {
             onDisconnect = {
@@ -171,6 +208,7 @@ class BLEService : Service() {
             onConnectionSetupComplete = { characteristic ->
                 Timber.i("Connected from $scannedResult.device}")
 //                val readServiceUuid = UUID.fromString("4fafc201-1fb5-459e-8fcc-c5c9c331914b")
+                bleGatt = characteristic
                 val readCharUuid = UUID.fromString(CHARACTERISTIC_UUID)
                 characteristic.findCharacteristic(readCharUuid)?.let { it1 ->
                     ConnectionManager.readCharacteristic(characteristic.device,
@@ -180,15 +218,32 @@ class BLEService : Service() {
             }
 
             onCharacteristicRead = { _, characteristic ->
-                Log.i("ble23", "Read from ${characteristic.uuid}: ${characteristic.value.toHexString()}")
+//                Log.i("ble23", "Read from ${characteristic.uuid}: ${characteristic.value.toHexString()}")
                 b23BatteryLevel = characteristic.value.decodeToString().split(" ")[2].toDouble()
-                val toSendString = "Hello From BLEService".toByteArray()
+
+                val toSendString = TX_ID.toByteArray() + send_str[send_count]
+
+                still_sending = true
+                if (send_count > 60){
+                    still_sending = false
+                }
+                send_count += 1
+
                 ConnectionManager.writeCharacteristic(scannedResult.device,characteristic,toSendString)
             }
 
             onCharacteristicWrite = { _, characteristic ->
-                Timber.i("Wrote to ${characteristic.uuid}")
-                ConnectionManager.teardownConnection(scannedResult.device)
+//                Log.i("BLEService", "Wrote to ${characteristic.uuid}, count: $send_count")
+                if(!still_sending) {
+                    ConnectionManager.teardownConnection(scannedResult.device)
+                }else{
+                    val readCharUuid = UUID.fromString(CHARACTERISTIC_UUID)
+                    bleGatt.findCharacteristic(readCharUuid)?.let { it1 ->
+                        ConnectionManager.readCharacteristic(bleGatt.device,
+                            it1
+                        )
+                    }
+                }
             }
 
             onMtuChanged = { _, mtu ->
@@ -228,4 +283,23 @@ class BLEService : Service() {
     }
     private fun String.hexToBytes() =
         this.chunked(2).map { it.toUpperCase(Locale.US).toInt(16).toByte() }.toByteArray()
+
+    private fun cleanListStringToString(item: List<String>): String {
+//        println("size of msg: ${item.size}")//16
+        var str = ""
+        for (m in item){
+            val list_m = m.split(",")
+//            println("item: $list_m")
+            for (n in list_m){
+//                println("item: $n")
+                if (n.isNotEmpty()) {
+                    val s = n.slice(2..3)
+                    str += s
+//                    println("item: $s")
+                }
+            }
+        }
+//        println("str size: ${str.length}")
+        return str
+    }
 }
