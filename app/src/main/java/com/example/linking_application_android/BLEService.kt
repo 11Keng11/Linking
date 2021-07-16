@@ -182,7 +182,7 @@ class BLEService : Service() {
             onCharacteristicRead = { _, characteristic ->
                 Log.i("ble23", "Read from ${characteristic.uuid}: ${characteristic.value.toHexString()}")
                 b23BatteryLevel = characteristic.value.decodeToString().split(" ")[2].toDouble()
-                val toSendString = "Hello From BLEService".toByteArray()
+                val toSendString = "61".toByteArray()
                 ConnectionManager.writeCharacteristic(scannedResult.device,characteristic,toSendString)
             }
 
