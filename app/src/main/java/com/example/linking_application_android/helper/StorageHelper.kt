@@ -32,6 +32,25 @@ class StorageHelper {
 
     companion object {
 
+        fun cleanListStringToString(item: List<String>): String {
+//        println("size of msg: ${item.size}")//16
+            var str = ""
+            for (m in item){
+                val list_m = m.split(",")
+//            println("item: $list_m")
+                for (n in list_m){
+//                println("item: $n")
+                    if (n.isNotEmpty()) {
+                        val s = n.slice(2..3)
+                        str += s
+//                    println("item: $s")
+                    }
+                }
+            }
+//        println("str size: ${str.length}")
+            return str
+        }
+
         fun getResUri(c: Context, location: Int): Uri = Uri.parse(
             ContentResolver.SCHEME_ANDROID_RESOURCE + "://" +
                     c.resources.getResourcePackageName(location) + '/' +

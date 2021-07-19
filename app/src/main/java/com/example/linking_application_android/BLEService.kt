@@ -86,44 +86,16 @@ class BLEService : Service() {
     override fun onCreate() {
         super.onCreate()
         ConnectionManager.registerListener(connectionEventListener)
-
-        val c = applicationContext
-        val message_to_send_str = cleanListStringToString(
-                StorageHelper.getCSVFromUri(
-                    c, StorageHelper.getResUri(c, R.raw.test_img)
-                ))
-        // 30720 * 2 = 61440
-        // m = 0 : 1000*0..1000*1-1   : 0..999
-        // m = 1 : 1000*1..1000*2-1   : 1000..1999
-        // m = 2 : 1000*2..1000*3-1   : 2000..2999
-        // m = 3 : 1000*3..1000*4-1   : 3000..3999
-        // m = 4 : 1000*4..1000*5-1   : 4000..4999
-        // m = 50: 1000*50..1000*51-1 : 50000..59999
-        // m = 60: 1000*60..1000*61-1 : 60000..69999
-        // m = 61: 1000*61..1000*62-1 : 61000..(61440-1) -> 79999
-//        val msg_slice = message_to_send_str.substring(1000*send_count, 1000*(send_count+1)-1).hexToBytes()
-//        println("hello msg_slice.... :${msg_slice.size} : ${msg_slice.toHexString()}")
-        val msgLengthDouble = message_to_send_str.length/1000.0
-        var msgLengthCeil = msgLengthDouble.toInt()
-
-        msgLength = msgLengthCeil
-        if (msgLengthDouble % 1 != 0.0) {
-            msgLengthCeil += 1
-        }
-        for (m in 0 until msgLengthCeil) {
-            var msg_slice: ByteArray
-//            println("trying... $m $msgLength")
-            if (m < msgLength) {
-                msg_slice = message_to_send_str.substring(1000*m, 1000*(m+1)-1).hexToBytes()
-            } else {
-                msg_slice = message_to_send_str.substring(1000*m, message_to_send_str.length - 1).hexToBytes()
-            }
-            send_str += msg_slice
-//            println("hello msg_slice....$m :${msg_slice.size} : ${msg_slice.toHexString()}")
-        }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        val message_to_send_str = intent?.getStringExtra("Message_to_send")!!
+        if (message_to_send_str.isNotEmpty()){
+            val msg_prepared = prepareImageToSend(message_to_send_str)
+            send_str = msg_prepared[0] as List<ByteArray>
+            msgLength = msg_prepared[1] as Int
+            still_sending = true
+        }
 
         isScanning = true
         FILTER_DEVICE_UUID = ParcelUuid(UUID.fromString(intent?.getStringExtra("DeviceUUID")))
@@ -174,21 +146,6 @@ class BLEService : Service() {
         }
     }
 
-//    private fun calculateDistance(txPower: Double, rssi: Double): Double {
-//        if (rssi == 0.0) {
-//            return -1.0 // if we cannot determine distance, return -1.
-//        }
-//        val ratio = rssi * 1.0 / -txPower
-//        return if (ratio < 1.0) {
-//            ratio.pow(10.0)
-//        } else {
-//            0.89976 * ratio.pow(7.7095) + 0.111
-//        }
-////        val t = -69.0
-////        val r = -60.0
-////        return 10.toDouble().pow((-txPower-rssi)/(10*3))
-//    }
-
     private fun stopScan(){
         bleScanner.stopScan(scanCallback)
         isScanning = false
@@ -235,14 +192,15 @@ class BLEService : Service() {
 
                 var toSendString = TX_ID.toByteArray()
 
-                still_sending = true
-                if (send_count > msgLength){
-                    still_sending = false
-                }else{
-                    toSendString += send_str[send_count]
+                if (still_sending) {
+                    if (send_count > msgLength) {
+                        still_sending = false
+                    } else {
+                        toSendString += send_str[send_count]
 //                    println("hello:......$send_count ${toSendString.size} -> ${toSendString.toHexString()}")
+                    }
+                    send_count += 1
                 }
-                send_count += 1
 
                 ConnectionManager.writeCharacteristic(scannedResult.device,characteristic,toSendString)
             }
@@ -299,22 +257,38 @@ class BLEService : Service() {
     private fun String.hexToBytes() =
         this.chunked(2).map { it.toUpperCase(Locale.US).toInt(16).toByte() }.toByteArray()
 
-    private fun cleanListStringToString(item: List<String>): String {
-//        println("size of msg: ${item.size}")//16
-        var str = ""
-        for (m in item){
-            val list_m = m.split(",")
-//            println("item: $list_m")
-            for (n in list_m){
-//                println("item: $n")
-                if (n.isNotEmpty()) {
-                    val s = n.slice(2..3)
-                    str += s
-//                    println("item: $s")
-                }
-            }
+    private fun prepareImageToSend(message_to_send_str: String): List<Any> {
+        // 30720 * 2 = 61440
+        // m = 0 : 1000*0..1000*1-1   : 0..999
+        // m = 1 : 1000*1..1000*2-1   : 1000..1999
+        // m = 2 : 1000*2..1000*3-1   : 2000..2999
+        // m = 3 : 1000*3..1000*4-1   : 3000..3999
+        // m = 4 : 1000*4..1000*5-1   : 4000..4999
+        // m = 50: 1000*50..1000*51-1 : 50000..59999
+        // m = 60: 1000*60..1000*61-1 : 60000..69999
+        // m = 61: 1000*61..1000*62-1 : 61000..(61440-1) -> 79999
+//        val msg_slice = message_to_send_str.substring(1000*send_count, 1000*(send_count+1)-1).hexToBytes()
+//        println("hello msg_slice.... :${msg_slice.size} : ${msg_slice.toHexString()}")
+        var send_str = listOf<ByteArray>()
+        val msgLengthDouble = message_to_send_str.length/1000.0
+        var msgLengthCeil = msgLengthDouble.toInt()
+
+        val msgLength = msgLengthCeil
+        if (msgLengthDouble % 1 != 0.0) {
+            msgLengthCeil += 1
         }
-//        println("str size: ${str.length}")
-        return str
+        for (m in 0 until msgLengthCeil) {
+            var msg_slice: ByteArray
+//            println("trying... $m $msgLength")
+            if (m < msgLength) {
+                msg_slice = message_to_send_str.substring(1000*m, 1000*(m+1)-1).hexToBytes()
+            } else {
+                msg_slice = message_to_send_str.substring(1000*m, message_to_send_str.length - 1).hexToBytes()
+            }
+            send_str += msg_slice
+//            println("hello msg_slice....$m :${msg_slice.size} : ${msg_slice.toHexString()}")
+        }
+        return listOf(send_str, msgLength)
     }
+
 }
