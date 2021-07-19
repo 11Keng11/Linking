@@ -24,6 +24,7 @@ import com.example.linking_application_android.helper.BitmapHelper
 import com.example.linking_application_android.helper.StorageHelper
 import timber.log.Timber
 import java.util.*
+import kotlin.math.ceil
 import kotlin.math.floor
 
 
@@ -37,10 +38,9 @@ private val TX_ID = "61"
 class BLEService : Service() {
 
     private var still_sending = false
-    private lateinit var message_to_send: ByteArray
-    private lateinit var chunked_msg_to_send: Array<ByteArray>
     private var send_count = 0
-    private var send_str = listOf<Byte>()
+    private var send_str = listOf<ByteArray>()
+    private var msgLength = 0
 
     private var b23BatteryLevel = 0.0
 
@@ -88,26 +88,38 @@ class BLEService : Service() {
         ConnectionManager.registerListener(connectionEventListener)
 
         val c = applicationContext
-        val message_to_send_str = StorageHelper.getCSVFromUri(c, StorageHelper.getResUri(c, R.raw.test_img))
-        message_to_send = cleanListStringToString(message_to_send_str).hexToBytes()
-//        println("hello:...... ${message_to_send.size} -> ${message_to_send.toHexString()}")
+        val message_to_send_str = cleanListStringToString(
+                StorageHelper.getCSVFromUri(
+                    c, StorageHelper.getResUri(c, R.raw.test_img)
+                ))
+        // 30720 * 2 = 61440
+        // m = 0 : 1000*0..1000*1-1   : 0..999
+        // m = 1 : 1000*1..1000*2-1   : 1000..1999
+        // m = 2 : 1000*2..1000*3-1   : 2000..2999
+        // m = 3 : 1000*3..1000*4-1   : 3000..3999
+        // m = 4 : 1000*4..1000*5-1   : 4000..4999
+        // m = 50: 1000*50..1000*51-1 : 50000..59999
+        // m = 60: 1000*60..1000*61-1 : 60000..69999
+        // m = 61: 1000*61..1000*62-1 : 61000..(61440-1) -> 79999
+//        val msg_slice = message_to_send_str.substring(1000*send_count, 1000*(send_count+1)-1).hexToBytes()
+//        println("hello msg_slice.... :${msg_slice.size} : ${msg_slice.toHexString()}")
+        val msgLengthDouble = message_to_send_str.length/1000.0
+        var msgLengthCeil = msgLengthDouble.toInt()
 
-        // m = 0 : 500*0..500*1-1   : 0..499
-        // m = 1 : 500*1..500*2-1   : 500..999
-        // m = 2 : 500*2..500*3-1   : 1000..1499
-        // m = 3 : 500*3..500*4-1   : 1500..1999
-        // m = 4 : 500*4..500*5-1   : 2000..2499
-        // m = 50: 500*50..500*51-1 : 25000..25499
-        // m = 60: 500*60..500*61-1 : 30000..30499
-        // m = 61: 500*61..500*62-1 : 30500..30720 -> 30999
-        for (send_count in 0 until message_to_send.size) {
-            if (send_count <= 60) {
-                send_str +=
-                    message_to_send.slice((500 * send_count) until 500 * (send_count + 1))
+        msgLength = msgLengthCeil
+        if (msgLengthDouble % 1 != 0.0) {
+            msgLengthCeil += 1
+        }
+        for (m in 0 until msgLengthCeil) {
+            var msg_slice: ByteArray
+//            println("trying... $m $msgLength")
+            if (m < msgLength) {
+                msg_slice = message_to_send_str.substring(1000*m, 1000*(m+1)-1).hexToBytes()
             } else {
-                send_str +=
-                    message_to_send.slice((500 * send_count) until (message_to_send.size - 1))
+                msg_slice = message_to_send_str.substring(1000*m, message_to_send_str.length - 1).hexToBytes()
             }
+            send_str += msg_slice
+//            println("hello msg_slice....$m :${msg_slice.size} : ${msg_slice.toHexString()}")
         }
     }
 
@@ -221,11 +233,14 @@ class BLEService : Service() {
 //                Log.i("ble23", "Read from ${characteristic.uuid}: ${characteristic.value.toHexString()}")
                 b23BatteryLevel = characteristic.value.decodeToString().split(" ")[2].toDouble()
 
-                val toSendString = TX_ID.toByteArray() + send_str[send_count]
+                var toSendString = TX_ID.toByteArray()
 
                 still_sending = true
-                if (send_count > 60){
+                if (send_count > msgLength){
                     still_sending = false
+                }else{
+                    toSendString += send_str[send_count]
+//                    println("hello:......$send_count ${toSendString.size} -> ${toSendString.toHexString()}")
                 }
                 send_count += 1
 
