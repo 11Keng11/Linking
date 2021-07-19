@@ -459,7 +459,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
             val uuid = "b6e4af9e-e48a-11eb-ba80-0242ac130004" 
             val intent = Intent("BLEServiceAction", "BLEServiceUri".toUri(), this, BLEService::class.java).apply {
                 putExtra("DeviceUUID", uuid)
-                putExtra("Message_to_send", "")//message_to_send_str)
+                putExtra("Message_to_send", message_to_send_str) // "")//
                 }
             startService(intent)
             isReceiverRegistered = true
