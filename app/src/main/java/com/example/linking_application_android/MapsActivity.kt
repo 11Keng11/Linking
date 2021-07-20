@@ -435,12 +435,12 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
     private fun startBleService() {
         Timber.i("Start BLE service")
 
-        val c = applicationContext
-        val message_to_send_str = StorageHelper.cleanListStringToString(
-            StorageHelper.getCSVFromUri(
-                c, StorageHelper.getResUri(c, R.raw.test_img)
-            )
-        )
+//        val c = applicationContext
+//        val message_to_send_str = StorageHelper.cleanListStringToString(
+//            StorageHelper.getCSVFromUri(
+//                c, StorageHelper.getResUri(c, R.raw.test_img)
+//            )
+//        )
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !isLocationPermissionGranted) {
             requestLocationPermission()
@@ -456,10 +456,10 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
             // "c0b9a99a-e488-11eb-ba80-0242ac130004"
             // “71e81e3a-e48a-11eb-ba80-0242ac130004”
 
-            val uuid = "b6e4af9e-e48a-11eb-ba80-0242ac130004" 
+            val uuid = "b6e4af9e-e48a-11eb-ba80-0242ac130004"
             val intent = Intent("BLEServiceAction", "BLEServiceUri".toUri(), this, BLEService::class.java).apply {
                 putExtra("DeviceUUID", uuid)
-                putExtra("Message_to_send", message_to_send_str) // "")//
+//                putExtra("Message_to_send", message_to_send_str) // "")//
                 }
             startService(intent)
             isReceiverRegistered = true

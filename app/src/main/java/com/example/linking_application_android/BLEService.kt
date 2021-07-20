@@ -41,6 +41,7 @@ class BLEService : Service() {
     private var send_count = 0
     private var send_str = listOf<ByteArray>()
     private var msgLength = 0
+    private var message_to_send_str = ""
 
     private var b23BatteryLevel = 0.0
 
@@ -89,13 +90,8 @@ class BLEService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        val message_to_send_str = intent?.getStringExtra("Message_to_send")!!
-        if (message_to_send_str.isNotEmpty()){
-            val msg_prepared = prepareImageToSend(message_to_send_str)
-            send_str = msg_prepared[0] as List<ByteArray>
-            msgLength = msg_prepared[1] as Int
-            still_sending = true
-        }
+
+//        message_to_send_str = intent?.getStringExtra("Message_to_send")!! // passing through intent bolcks the thread
 
         isScanning = true
         FILTER_DEVICE_UUID = ParcelUuid(UUID.fromString(intent?.getStringExtra("DeviceUUID")))
@@ -188,6 +184,22 @@ class BLEService : Service() {
 
             onCharacteristicRead = { _, characteristic ->
 //                Log.i("ble23", "Read from ${characteristic.uuid}: ${characteristic.value.toHexString()}")
+
+                if (!still_sending) {
+                    val c = applicationContext
+                    message_to_send_str = StorageHelper.cleanListStringToString(
+                        StorageHelper.getCSVFromUri(
+                            c, StorageHelper.getResUri(c, R.raw.test_img)
+                        )
+                    )
+                }
+                if (message_to_send_str.isNotEmpty() && !still_sending){
+                    val msg_prepared = prepareImageToSend(message_to_send_str)
+                    send_str = msg_prepared[0] as List<ByteArray>
+                    msgLength = msg_prepared[1] as Int
+                    still_sending = true
+                }
+
                 b23BatteryLevel = characteristic.value.decodeToString().split(" ")[2].toDouble()
 
                 var toSendString = TX_ID.toByteArray()
@@ -196,8 +208,9 @@ class BLEService : Service() {
                     if (send_count > msgLength) {
                         still_sending = false
                     } else {
+                        toSendString += byteArrayOf(msgLength.toByte())
                         toSendString += send_str[send_count]
-//                    println("hello:......$send_count ${toSendString.size} -> ${toSendString.toHexString()}")
+                    println("hello:......$send_count ${toSendString.size} -> ${toSendString.toHexString()}")
                     }
                     send_count += 1
                 }
