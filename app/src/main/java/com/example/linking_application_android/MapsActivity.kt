@@ -48,6 +48,8 @@ import kotlin.jvm.internal.Intrinsics
 
 
 class MapsActivity : FragmentActivity(), OnMapReadyCallback {
+
+    //Maps
     private var mMap: GoogleMap? = null
     private val tampines = LatLng(1.3525, 103.9447)
     private var binding: ActivityMapsBinding? = null
@@ -86,6 +88,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
     private lateinit var openFab // route gen and compass fab
             : FloatingActionButton
 
+    // Animation
     private lateinit var konfettiView
             : KonfettiView
 
@@ -95,6 +98,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
     private lateinit var exerciseIcon : BitmapDescriptor
     private lateinit var generalIcon : BitmapDescriptor
 
+    // Marker Visibility
     private var natVisible = true // State - whether nature markers are visible
     private var exVisible = true // State - whether exercise markers are visible
     private var plaVisible = true // State - whether play markers are visible
@@ -165,13 +169,15 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
         openFab = findViewById(R.id.openfab)
 
         // Marker Icons for landmarks
-        natureIcon = getIcon("marker_nature", this, packageName, 61, 90)
-        playIcon = getIcon("marker_play", this, packageName, 61, 90)
-        exerciseIcon = getIcon("marker_exercise", this, packageName, 61, 90)
-        generalIcon = getIcon("marker_gem", this, packageName, 61, 90)
+        natureIcon = getIcon("marker_nature", this, packageName, 67, 100)
+        playIcon = getIcon("marker_play", this, packageName, 67, 100)
+        exerciseIcon = getIcon("marker_exercise", this, packageName, 67, 100)
+        generalIcon = getIcon("marker_gem", this, packageName, 67, 100)
 
+        // Animation
         konfettiView = findViewById(R.id.viewKonfetti)
 
+        // Button Listeners
         natFab.setOnClickListener(View.OnClickListener {
             natVisible = true
             plaVisible = false
@@ -201,14 +207,11 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
         })
 
         bleFab.setOnClickListener(View.OnClickListener {
-            // Run your function to scan and print a toast if successful
-            // I will use this as a condition to check whether a landmark has been visited.
-
-            /*  Bluetooth  */
             if (!isScanning) {
                 startBleService()
                 Toast.makeText(applicationContext, "Starting Scan",
                     Toast.LENGTH_SHORT).show()
+                readFBData()
                 if (isRoute) {
 //                    setReach()
                 }
@@ -216,15 +219,12 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
             else {
                 Toast.makeText(applicationContext, "Stopping Scan",
                     Toast.LENGTH_SHORT).show()
-//                Toast.makeText(applicationContext, "Restarting Scan",
-//                    Toast.LENGTH_SHORT).show()
                 stopBleService()
-//                startBleService()
             }
         })
-        bleFab.setAlpha(0.0f)
+        bleFab.setAlpha(0.0f) // Make it invisible
 
-        openFab.setOnClickListener(View.OnClickListener { // Run your function to scan and print a toast if successful
+        openFab.setOnClickListener(View.OnClickListener {
             if (isRoute) {
                 supportFragmentManager.let {
                     CompassBottomSheetFragment.newInstance(Bundle()).apply {
@@ -557,10 +557,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
         }
     }
 
-
-    /**
-     * For Location Services (this is not a service, it does not run in background)
-     */
+    // Location services
     private val airLocation = AirLocation(this, object : AirLocation.Callback {
 
         override fun onSuccess(locations: ArrayList<Location>) {
