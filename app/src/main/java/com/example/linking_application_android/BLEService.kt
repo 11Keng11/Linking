@@ -42,6 +42,7 @@ class BLEService : Service() {
     private var send_str = listOf<ByteArray>()
     private var msgLength = 0
     private var message_to_send_str = ""
+    private var message_to_send_cmd = false
 
     private var b23BatteryLevel = 0.0
 
@@ -91,7 +92,7 @@ class BLEService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 
-//        message_to_send_str = intent?.getStringExtra("Message_to_send")!! // passing through intent bolcks the thread
+        message_to_send_cmd = intent?.getBooleanExtra("Message_to_send_cmd", false)!! // passing through intent bolcks the thread
 
         isScanning = true
         FILTER_DEVICE_UUID = ParcelUuid(UUID.fromString(intent?.getStringExtra("DeviceUUID")))
@@ -129,7 +130,6 @@ class BLEService : Service() {
 //                                    " address: ${d.address}, rssi: $rssi, tx_power: $txPower"//, distance: $distance"
 //                        )
                         if ((rssi > RSSI_THRESHOLD_SCAN_DISTANCE)) {
-//                            val distance = calculateDistance(txPower.toDouble(), rssi.toDouble()) //not working, not accurate
                             scannedResult = result
                             isDeviceFound = true
                         }
@@ -185,7 +185,7 @@ class BLEService : Service() {
             onCharacteristicRead = { _, characteristic ->
 //                Log.i("ble23", "Read from ${characteristic.uuid}: ${characteristic.value.toHexString()}")
 
-                if (!still_sending) {
+                if (message_to_send_cmd && !still_sending) {
                     val c = applicationContext
                     message_to_send_str = StorageHelper.cleanListStringToString(
                         StorageHelper.getCSVFromUri(
