@@ -169,10 +169,10 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
         openFab = findViewById(R.id.openfab)
 
         // Marker Icons for landmarks
-        natureIcon = getIcon("marker_nature", this, packageName, 61, 90)
-        playIcon = getIcon("marker_play", this, packageName, 61, 90)
-        exerciseIcon = getIcon("marker_exercise", this, packageName, 61, 90)
-        generalIcon = getIcon("marker_gem", this, packageName, 61, 90)
+        natureIcon = getIcon("marker_nature", this, packageName, 67, 100)
+        playIcon = getIcon("marker_play", this, packageName, 67, 100)
+        exerciseIcon = getIcon("marker_exercise", this, packageName, 67, 100)
+        generalIcon = getIcon("marker_gem", this, packageName, 67, 100)
 
         // Animation
         konfettiView = findViewById(R.id.viewKonfetti)
@@ -211,6 +211,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
                 startBleService()
                 Toast.makeText(applicationContext, "Starting Scan",
                     Toast.LENGTH_SHORT).show()
+                readFBData()
                 if (isRoute) {
 //                    setReach()
                 }

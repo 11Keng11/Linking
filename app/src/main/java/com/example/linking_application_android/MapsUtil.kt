@@ -50,11 +50,11 @@ fun setMarkers(values: List<List<Any?>>?, mapObj: GoogleMap?, markerIcon: Bitmap
     val markers = ArrayList<Marker>()
     for (row in values!!) {
         try {
-            val name = row[0].toString()
+            val name = row[3].toString()
             val lat = row[2].toString().toFloat()
             val lon = row[1].toString().toFloat()
             val pos = LatLng(lat.toDouble(), lon.toDouble())
-            val type = row[3].toString()
+            val type = row[0].toString()
             val newMarker: Marker = mapObj!!.addMarker(
                 MarkerOptions()
                     .position(pos)
