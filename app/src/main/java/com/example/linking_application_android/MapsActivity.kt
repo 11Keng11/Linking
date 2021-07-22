@@ -213,7 +213,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
                     Toast.LENGTH_SHORT).show()
                 readFBData()
                 if (isRoute) {
-//                    setReach()
+                    setReach()
                 }
             }
             else {
@@ -222,7 +222,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
                 stopBleService()
             }
         })
-        bleFab.setAlpha(0.0f) // Make it invisible
+        // bleFab.setAlpha(0.0f)
 
         openFab.setOnClickListener(View.OnClickListener {
             if (isRoute) {
@@ -245,7 +245,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
     }
 
     fun getDstTitle() : String {
-        return path.get(step+1).title
+        return path.get(step+1).snippet
     }
 
     fun getDst() : LatLng {
@@ -317,7 +317,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
             val iconName = "marker_${i+1}"
             if (node.get(0) == 'G') {
                 for (mkr in generalMarkers!!) {
-                    if (mkr.title == node) {
+                    if (mkr.snippet == node) {
                         path.add(mkr)
                         val nodeIcon = getIcon(iconName, this, packageName, 92, 135)
                         mkr.setIcon(nodeIcon)
@@ -326,7 +326,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
                 }
             } else {
                 for (mkr in natureMarkers!!) {
-                    if (mkr.title == node) {
+                    if (mkr.snippet == node) {
                         path.add(mkr)
                         val nodeIcon = getIcon(iconName, this, packageName, 92, 135)
                         mkr.setIcon(nodeIcon)
