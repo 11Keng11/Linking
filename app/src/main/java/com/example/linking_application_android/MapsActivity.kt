@@ -455,7 +455,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
                 Can use this for the landmarks ids -> each beacon will follow this ids
                 Use https://www.uuidgenerator.net/version1 to generate the UUID
              */
-            val message_to_send_cmd = true
+            val message_to_send_cmd = false
 
             //UUIDs
             // "b6e4af9e-e48a-11eb-ba80-0242ac130004"
