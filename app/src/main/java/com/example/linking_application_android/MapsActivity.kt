@@ -284,10 +284,14 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
         dstLocation = LatLng(0.0,0.0)
         isRoute = false
         for (mkr in path) {
-            if (mkr.title.get(0) == 'G') {
+            if (mkr.snippet.get(0) == 'G') {
                 mkr.setIcon(generalIcon)
-            } else {
+            } else if (mkr.snippet.get(0) == 'N') {
                 mkr.setIcon(natureIcon)
+            } else if (mkr.snippet.get(0) == 'P') {
+                mkr.setIcon(playIcon)
+            } else if (mkr.snippet.get(0) == 'E') {
+                mkr.setIcon(exerciseIcon)
             }
         }
         path.clear()
