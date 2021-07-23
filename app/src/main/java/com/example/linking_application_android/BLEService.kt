@@ -202,6 +202,7 @@ class BLEService : Service() {
 
                 b23BatteryLevel = characteristic.value.decodeToString().split(" ")[2].toDouble()
 
+
                 var toSendString = TX_ID.toByteArray()
 
                 if (still_sending) {
@@ -214,6 +215,7 @@ class BLEService : Service() {
                     }
                     send_count += 1
                 }
+
 
                 ConnectionManager.writeCharacteristic(scannedResult.device,characteristic,toSendString)
             }
