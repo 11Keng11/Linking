@@ -87,6 +87,8 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
             : FloatingActionButton
     private lateinit var openFab // route gen and compass fab
             : FloatingActionButton
+    private lateinit var accFab // Account and stats
+            : FloatingActionButton
 
     // Animation
     private lateinit var konfettiView
@@ -167,6 +169,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
         genFab = findViewById(R.id.genfab)
         bleFab = findViewById(R.id.blefab)
         openFab = findViewById(R.id.openfab)
+        accFab = findViewById(R.id.accountfab)
 
         // Marker Icons for landmarks
         natureIcon = getIcon("marker_nature", this, packageName, 67, 100)
@@ -235,6 +238,11 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
                 var dialog = RouteGenFragment()
                 dialog.show(supportFragmentManager,"RouteGen")
             }
+        })
+
+        accFab.setOnClickListener(View.OnClickListener {
+            resetRoute()
+
         })
     }
 
