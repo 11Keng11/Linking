@@ -305,12 +305,13 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
     // Fake function to set destination reach
     private fun setReach() {
         val tick = getIcon("marker_done", this, packageName, 92, 135)
+        val length = path!!.size -1
         step += 1
-        if (step ==2) {
+        if (step == length) {
             path!!.get(step).setIcon(tick)
             startKonfetti()
             resetRoute()
-        } else if (step < 2) {
+        } else if (step < length) {
             dstLocation = path!!.get(step+1).position
             path!!.get(step).setIcon(tick)
             mMap!!.animateCamera(
@@ -336,8 +337,26 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
                         i +=1
                     }
                 }
-            } else {
+            } else if (node.get(0) == 'N') {
                 for (mkr in natureMarkers!!) {
+                    if (mkr.snippet == node) {
+                        path.add(mkr)
+                        val nodeIcon = getIcon(iconName, this, packageName, 92, 135)
+                        mkr.setIcon(nodeIcon)
+                        i +=1
+                    }
+                }
+            } else if (node.get(0) == 'P') {
+                for (mkr in playMarkers!!) {
+                    if (mkr.snippet == node) {
+                        path.add(mkr)
+                        val nodeIcon = getIcon(iconName, this, packageName, 92, 135)
+                        mkr.setIcon(nodeIcon)
+                        i +=1
+                    }
+                }
+            } else if (node.get(0) == 'E') {
+                for (mkr in exerciseMarkers!!) {
                     if (mkr.snippet == node) {
                         path.add(mkr)
                         val nodeIcon = getIcon(iconName, this, packageName, 92, 135)
