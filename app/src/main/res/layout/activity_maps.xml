@@ -81,7 +81,7 @@
         android:id="@+id/blefab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/fab_ble"
+        android:src="@drawable/fab_settings"
         android:layout_gravity="bottom|start"
         android:layout_marginStart="@dimen/ui_margin_medium"
         android:layout_marginBottom="@dimen/ui_margin_xl"
@@ -98,4 +98,14 @@
         map:backgroundTint="#ffffff"
         map:fabSize="normal"/>
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/accountfab"
+        android:layout_width="74dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginBottom="@dimen/ui_margin_xl"
+        android:layout_marginEnd="@dimen/ui_margin_medium"
+        map:srcCompat="@drawable/fab_profile"
+        map:backgroundTint="#ffffff"
+        map:fabSize="normal"/>
 </FrameLayout>

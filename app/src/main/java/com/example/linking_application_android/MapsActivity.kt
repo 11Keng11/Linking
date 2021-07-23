@@ -48,6 +48,8 @@ import kotlin.jvm.internal.Intrinsics
 
 
 class MapsActivity : FragmentActivity(), OnMapReadyCallback {
+
+    //Maps
     private var mMap: GoogleMap? = null
     private val tampines = LatLng(1.3525, 103.9447)
     private var binding: ActivityMapsBinding? = null
@@ -85,7 +87,10 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
             : FloatingActionButton
     private lateinit var openFab // route gen and compass fab
             : FloatingActionButton
+    private lateinit var accFab // Account and stats
+            : FloatingActionButton
 
+    // Animation
     private lateinit var konfettiView
             : KonfettiView
 
@@ -95,6 +100,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
     private lateinit var exerciseIcon : BitmapDescriptor
     private lateinit var generalIcon : BitmapDescriptor
 
+    // Marker Visibility
     private var natVisible = true // State - whether nature markers are visible
     private var exVisible = true // State - whether exercise markers are visible
     private var plaVisible = true // State - whether play markers are visible
@@ -163,15 +169,18 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
         genFab = findViewById(R.id.genfab)
         bleFab = findViewById(R.id.blefab)
         openFab = findViewById(R.id.openfab)
+        accFab = findViewById(R.id.accountfab)
 
         // Marker Icons for landmarks
-        natureIcon = getIcon("marker_nature", this, packageName, 61, 90)
-        playIcon = getIcon("marker_play", this, packageName, 61, 90)
-        exerciseIcon = getIcon("marker_exercise", this, packageName, 61, 90)
-        generalIcon = getIcon("marker_gem", this, packageName, 61, 90)
+        natureIcon = getIcon("marker_nature", this, packageName, 67, 100)
+        playIcon = getIcon("marker_play", this, packageName, 67, 100)
+        exerciseIcon = getIcon("marker_exercise", this, packageName, 67, 100)
+        generalIcon = getIcon("marker_gem", this, packageName, 67, 100)
 
+        // Animation
         konfettiView = findViewById(R.id.viewKonfetti)
 
+        // Button Listeners
         natFab.setOnClickListener(View.OnClickListener {
             natVisible = true
             plaVisible = false
@@ -201,26 +210,24 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
         })
 
         bleFab.setOnClickListener(View.OnClickListener {
-            /*  Bluetooth  */
             if (!isScanning) {
                 startBleService()
                 Toast.makeText(applicationContext, "Starting Scan",
                     Toast.LENGTH_SHORT).show()
+                readFBData()
                 if (isRoute) {
-//                    setReach()
+                    setReach()
                 }
             }
             else {
                 Toast.makeText(applicationContext, "Stopping Scan",
                     Toast.LENGTH_SHORT).show()
-
                 stopBleService()
-
             }
         })
-        bleFab.setAlpha(0.0f)
+        // bleFab.setAlpha(0.0f)
 
-        openFab.setOnClickListener(View.OnClickListener { // Run your function to scan and print a toast if successful
+        openFab.setOnClickListener(View.OnClickListener {
             if (isRoute) {
                 supportFragmentManager.let {
                     CompassBottomSheetFragment.newInstance(Bundle()).apply {
@@ -232,6 +239,11 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
                 dialog.show(supportFragmentManager,"RouteGen")
             }
         })
+
+        accFab.setOnClickListener(View.OnClickListener {
+            resetRoute()
+
+        })
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
@@ -241,7 +253,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
     }
 
     fun getDstTitle() : String {
-        return path.get(step+1).title
+        return path.get(step+1).snippet
     }
 
     fun getDst() : LatLng {
@@ -313,7 +325,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
             val iconName = "marker_${i+1}"
             if (node.get(0) == 'G') {
                 for (mkr in generalMarkers!!) {
-                    if (mkr.title == node) {
+                    if (mkr.snippet == node) {
                         path.add(mkr)
                         val nodeIcon = getIcon(iconName, this, packageName, 92, 135)
                         mkr.setIcon(nodeIcon)
@@ -322,7 +334,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
                 }
             } else {
                 for (mkr in natureMarkers!!) {
-                    if (mkr.title == node) {
+                    if (mkr.snippet == node) {
                         path.add(mkr)
                         val nodeIcon = getIcon(iconName, this, packageName, 92, 135)
                         mkr.setIcon(nodeIcon)
@@ -436,7 +448,13 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
                 Can use this for the landmarks ids -> each beacon will follow this ids
                 Use https://www.uuidgenerator.net/version1 to generate the UUID
              */
-            val uuid = "4fafc201-1fb5-459e-8fcc-c5c9c331914b" // "4fafc255-1fb5-459e-8fcc-c5c9c331914b" //
+
+            //UUIDs
+            // "b6e4af9e-e48a-11eb-ba80-0242ac130004"
+            // "c0b9a99a-e488-11eb-ba80-0242ac130004"
+            // “71e81e3a-e48a-11eb-ba80-0242ac130004”
+
+            val uuid = "b6e4af9e-e48a-11eb-ba80-0242ac130004" 
             val intent = Intent("BLEServiceAction", "BLEServiceUri".toUri(), this, BLEService::class.java).apply {
                 putExtra("DeviceUUID", uuid)
             }
@@ -543,12 +561,8 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
         }
     }
 
-
-    /**
-     * For Location Services (this is not a service, it does not run in background)
-     */
+    // Location services
     private val airLocation = AirLocation(this, object : AirLocation.Callback {
-
         override fun onSuccess(locations: ArrayList<Location>) {
             curLocation = LatLng(locations.get(0).latitude,locations.get(0).longitude)
             var distLeft = distanceBetween(curLocation, dstLocation)
@@ -559,7 +573,6 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
                         Toast.LENGTH_SHORT).show()
                 }
             }
-
         }
 
         override fun onFailure(locationFailedEnum: AirLocation.LocationFailedEnum) {

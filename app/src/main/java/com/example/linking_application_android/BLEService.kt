@@ -24,7 +24,7 @@ import java.util.*
 
 
 private  const val FILTER_DEVICE_NAME = "BeaconS23"
-private  const val RSSI_THRESHOLD_SCAN_DISTANCE = -95//-70 //Current estimate there should be a better way to ensure the proper scan radius
+private  const val RSSI_THRESHOLD_SCAN_DISTANCE = -80//-70 //Current estimate there should be a better way to ensure the proper scan radius
 private  const val CHARACTERISTIC_UUID = "beb5483e-36e1-4688-b7f5-ea07361b26a8"
 
 private var FILTER_DEVICE_UUID: ParcelUuid = ParcelUuid(UUID.fromString("4fafc201-1fb5-459e-8fcc-c5c9c331914b"))
@@ -182,7 +182,7 @@ class BLEService : Service() {
             onCharacteristicRead = { _, characteristic ->
                 Log.i("ble23", "Read from ${characteristic.uuid}: ${characteristic.value.toHexString()}")
                 b23BatteryLevel = characteristic.value.decodeToString().split(" ")[2].toDouble()
-                val toSendString = "Hello From BLEService".toByteArray()
+                val toSendString = "61".toByteArray()
                 ConnectionManager.writeCharacteristic(scannedResult.device,characteristic,toSendString)
             }
 
