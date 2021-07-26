@@ -38,6 +38,7 @@ private val TX_ID = "61"
 class BLEService : Service() {
 
     private var still_sending = false
+    private var command_to_send = ""
     private var send_count = 0
     private var send_str = listOf<ByteArray>()
     private var msgLength = 0
@@ -92,6 +93,7 @@ class BLEService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 
+        command_to_send = intent?.getStringExtra("Command_to_send_cmd")!!
         message_to_send_cmd = intent?.getBooleanExtra("Message_to_send_cmd", false)!! // passing through intent bolcks the thread
 
         isScanning = true
@@ -186,12 +188,21 @@ class BLEService : Service() {
 //                Log.i("ble23", "Read from ${characteristic.uuid}: ${characteristic.value.toHexString()}")
 
                 if (message_to_send_cmd && !still_sending) {
-                    val c = applicationContext
-                    message_to_send_str = StorageHelper.cleanListStringToString(
-                        StorageHelper.getCSVFromUri(
-                            c, StorageHelper.getResUri(c, R.raw.test_img)
+                    if(command_to_send == "3" || command_to_send == "4" ) {
+
+                        //TODO: to make it get image from Firebase instead...
+                        Log.i("ble23","getting image from raw")
+                        val c = applicationContext
+                        message_to_send_str = StorageHelper.cleanListStringToString(
+                            StorageHelper.getCSVFromUri(
+                                c, StorageHelper.getResUri(c, R.raw.test_img_ndp)
+                            )
                         )
-                    )
+                    }
+                    if(command_to_send == "1" || command_to_send == "2"){
+                        still_sending = true
+                        msgLength = 1
+                    }
                 }
                 if (message_to_send_str.isNotEmpty() && !still_sending){
                     val msg_prepared = prepareImageToSend(message_to_send_str)
@@ -200,18 +211,25 @@ class BLEService : Service() {
                     still_sending = true
                 }
 
+
                 b23BatteryLevel = characteristic.value.decodeToString().split(" ")[2].toDouble()
 
-
+                /*
+                 TODO: to write up the protocol to exchange between the beacon and app.
+                 */
                 var toSendString = TX_ID.toByteArray()
 
                 if (still_sending) {
-                    if (send_count > msgLength) {
+                    if (send_count >= msgLength) {
                         still_sending = false
+                        command_to_send = ""
                     } else {
                         toSendString += byteArrayOf(msgLength.toByte())
-                        toSendString += send_str[send_count]
-                    println("hello:......$send_count ${toSendString.size} -> ${toSendString.toHexString()}")
+                        toSendString += byteArrayOf(command_to_send.toByte())
+                        if(command_to_send == "3" || command_to_send == "4") {
+                            toSendString += send_str[send_count]
+                        }
+                        println("Sending -> count: $send_count, Size: ${toSendString.size}, Msg: ${toSendString.toHexString()}")
                     }
                     send_count += 1
                 }
@@ -294,7 +312,7 @@ class BLEService : Service() {
         }
         for (m in 0 until msgLengthCeil) {
             var msg_slice: ByteArray
-//            println("trying... $m $msgLength")
+//            println("trying... $m $msgLength $msgLengthCeil")
             if (m < msgLength) {
                 msg_slice = message_to_send_str.substring(1000*m, 1000*(m+1)-1).hexToBytes()
             } else {
@@ -303,7 +321,7 @@ class BLEService : Service() {
             send_str += msg_slice
 //            println("hello msg_slice....$m :${msg_slice.size} : ${msg_slice.toHexString()}")
         }
-        return listOf(send_str, msgLength)
+        return listOf(send_str, msgLengthCeil)
     }
 
 }

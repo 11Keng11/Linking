@@ -451,12 +451,23 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
             requestLocationPermission()
         } else {
             setIsScanning(true)
+
             /*
-                Can use this for the landmarks ids -> each beacon will follow this ids
-                Use https://www.uuidgenerator.net/version1 to generate the UUID
+                Possible command:
+                if message to send cmd is false
+                should ignore the command to send
+                only if message to send cmd is true
+                "1" -> reset the image to default
+                "2" -> show the image that was sent over
+                "3" -> send image over but do not change the image display
+                "4" -> send and change the image
              */
             val message_to_send_cmd = false
-
+            val command_to_send = "1"
+            /*
+               Can use this for the landmarks ids -> each beacon will follow this ids
+               Use https://www.uuidgenerator.net/version1 to generate the UUID
+            */
             //UUIDs
             // "b6e4af9e-e48a-11eb-ba80-0242ac130004"
             // "c0b9a99a-e488-11eb-ba80-0242ac130004"
@@ -465,6 +476,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
             val uuid = "b6e4af9e-e48a-11eb-ba80-0242ac130004"
             val intent = Intent("BLEServiceAction", "BLEServiceUri".toUri(), this, BLEService::class.java).apply {
                 putExtra("DeviceUUID", uuid)
+                putExtra("Command_to_send_cmd", command_to_send)
                 putExtra("Message_to_send_cmd", message_to_send_cmd) // "")//
                 }
             startService(intent)
