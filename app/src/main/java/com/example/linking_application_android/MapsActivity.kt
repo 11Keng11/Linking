@@ -309,11 +309,11 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
     private fun setReach() {
         val tick = getIcon("marker_done", this, packageName, 92, 135)
         step += 1
-        if (step ==2) {
+        if (step ==1) {
             path!!.get(step).setIcon(tick)
             startKonfetti()
             resetRoute()
-        } else if (step < 2) {
+        } else if (step < 1) {
             dstLocation = path!!.get(step+1).position
             path!!.get(step).setIcon(tick)
             mMap!!.animateCamera(
