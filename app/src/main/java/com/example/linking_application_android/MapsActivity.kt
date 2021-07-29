@@ -298,7 +298,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
         mMap!!.animateCamera(
             CameraUpdateFactory.newLatLngZoom(
                 LatLng(1.3539,103.9360)
-                , 16.0f)
+                , 15.0f)
         )
     }
 
@@ -491,7 +491,6 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
         setIsScanning(false)
         val intent = Intent(this, BLEService::class.java)
         stopService(intent)
-        Log.e("onStopr error", "stopping scan")
     }
 
     private fun setIsScanning(isScan: Boolean) {

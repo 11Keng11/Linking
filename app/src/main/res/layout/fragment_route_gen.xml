@@ -5,8 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/rounded_dialog"
-    android:minWidth="260dp"
-    android:minHeight="400dp"
+    android:minWidth="320dp"
+    android:minHeight="450dp"
     android:orientation="vertical"
     android:padding="24dp">
 
@@ -79,6 +79,15 @@
             android:layout_marginLeft="15dp"/>
     </LinearLayout>
 
+    <TextView
+        android:id="@+id/routeText"
+        android:layout_width="wrap_content"
+        android:layout_height="70dp"
+        android:text=""
+        android:textColor="#ffffff"
+        android:textSize="20sp"
+        android:layout_marginLeft="15dp"/>
+
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -92,7 +101,18 @@
             android:layout_gravity="bottom|start"
             android:layout_marginStart="@dimen/ui_margin_small"
             android:layout_marginBottom="@dimen/ui_margin_small"
-            map:backgroundTint="#ffffff"/>
+            map:backgroundTint="#ffffff"
+            map:fabSize="mini"/>
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/rerunfab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/fab_rerun"
+            android:layout_gravity="bottom|center"
+            android:layout_marginBottom="@dimen/ui_margin_small"
+            map:backgroundTint="#ffffff"
+            map:fabSize="mini"/>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/nextfab"
@@ -102,7 +122,8 @@
             android:layout_marginEnd="@dimen/ui_margin_small"
             android:layout_marginBottom="@dimen/ui_margin_small"
             map:srcCompat="@drawable/fab_next"
-            map:backgroundTint="#ffffff" />
+            map:backgroundTint="#ffffff"
+            map:fabSize="mini"/>
     </FrameLayout>
 
 </LinearLayout>
