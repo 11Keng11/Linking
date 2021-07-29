@@ -51,7 +51,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
 
     //Maps
     private var mMap: GoogleMap? = null
-    private val tampines = LatLng(1.3525, 103.9447)
+    private val sutd = LatLng(1.3414, 103.9633)
     private var binding: ActivityMapsBinding? = null
 
     // Landmarks
@@ -297,8 +297,8 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
         path.clear()
         mMap!!.animateCamera(
             CameraUpdateFactory.newLatLngZoom(
-                LatLng(1.3539,103.9360)
-                , 16.0f)
+                LatLng(1.3414, 103.9633)
+                , 17.0f)
         )
     }
 
@@ -316,7 +316,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
             path!!.get(step).setIcon(tick)
             mMap!!.animateCamera(
                 CameraUpdateFactory.newLatLngZoom(dstLocation
-                    , 17.0f)
+                    , 18.0f)
             )
         }
     }
@@ -369,7 +369,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
         dstLocation = path!!.get(0).position
         mMap!!.animateCamera(
             CameraUpdateFactory.newLatLngZoom(dstLocation
-            , 17.0f)
+            , 18.0f)
         )
     }
 
@@ -381,21 +381,21 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
         mMap!!.setMapStyle(mapStyleOptions)
 
         // Set map bounds
-        val tampinesBounds = LatLngBounds(
-                LatLng(1.343214, 103.925226),  // SW bounds
-                LatLng(1.366954, 103.963879) // NE bounds
+        val sutdBounds = LatLngBounds(
+                LatLng(1.339988, 103.961206),  // SW bounds
+                LatLng(1.342825, 103.966078) // NE bounds
         )
-        mMap!!.setLatLngBoundsForCameraTarget(tampinesBounds)
+        mMap!!.setLatLngBoundsForCameraTarget(sutdBounds)
 
         // Get marker values from google sheet
         val getMarkerValues = Thread(object : Runnable {
             var gotData = false
             override fun run() {
                 while (!gotData) {
-                    natureValues = readSheet("Nature!A2:D", sheetsService, google_api_key, sheet_id)
-                    exerciseValues = readSheet("Exercise!A2:D", sheetsService, google_api_key, sheet_id)
-                    playValues = readSheet("Play!A2:D", sheetsService, google_api_key, sheet_id)
-                    generalValues = readSheet("General!A2:D", sheetsService, google_api_key, sheet_id)
+                    natureValues = readSheet("Nature!A2:E", sheetsService, google_api_key, sheet_id)
+                    exerciseValues = readSheet("Exercise!A2:E", sheetsService, google_api_key, sheet_id)
+                    playValues = readSheet("Play!A2:E", sheetsService, google_api_key, sheet_id)
+                    generalValues = readSheet("General!A2:E", sheetsService, google_api_key, sheet_id)
                     if (natureValues != null && exerciseValues != null && generalValues != null && generalValues != null) {
                         gotData = true
                         break
@@ -416,10 +416,10 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
         playMarkers = setMarkers(playValues, mMap, playIcon)
         generalMarkers = setMarkers(generalValues, mMap, generalIcon)
 
-        // Center map on tampines and set zoom
-        mMap!!.moveCamera(CameraUpdateFactory.newLatLng(tampines))
-        mMap!!.setMinZoomPreference(15.0f)
-        mMap!!.setMaxZoomPreference(25.0f)
+        // Center map on sutd and set zoom
+        mMap!!.moveCamera(CameraUpdateFactory.newLatLng(sutd))
+        mMap!!.setMinZoomPreference(17.0f)
+        mMap!!.setMaxZoomPreference(30.0f)
 
     }
 
@@ -589,7 +589,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
         override fun onSuccess(locations: ArrayList<Location>) {
             curLocation = LatLng(locations.get(0).latitude,locations.get(0).longitude)
             var distLeft = distanceBetween(curLocation, dstLocation)
-            if (distLeft < 2.0) {
+            if (distLeft < 5.0) {
                 if (!isScanning) {
                     startBleService()
                     Toast.makeText(applicationContext, "Starting Scan",

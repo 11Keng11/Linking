@@ -62,9 +62,8 @@ class RouteGenFragment : DialogFragment() {
 
         nextFab.setOnClickListener(View.OnClickListener {
             val route = ArrayList<String>()
-            route.add("NA20")
-            route.add("G2")
-            route.add("NA12")
+            route.add("GE26")
+            route.add("GE25")
             (activity as MapsActivity?)!!.setRoute(route)
             dismiss()
         })
