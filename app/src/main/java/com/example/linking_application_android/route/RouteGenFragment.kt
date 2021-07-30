@@ -74,17 +74,25 @@ class RouteGenFragment : DialogFragment() {
         })
 
         rerunFab.setOnClickListener(View.OnClickListener {
-            selectedRoute = allRoutes.get(index)
-            if (index == allRoutes.size -1) {
-                index = 0
-            } else {
-                index++
+            var start = startText!!.text.toString().uppercase()
+            var end = endText!!.text.toString().uppercase()
+            var dist = dstText!!.text.toString().uppercase()
+            if (start == "NA20" && end == "NA12" && dist == "500") {
+                if (selectedRoute == null) {
+                    rerunFab.setImageDrawable(getResources().getDrawable(R.drawable.fab_rerun))
+                }
+                selectedRoute = allRoutes.get(index)
+                if (index == allRoutes.size -1) {
+                    index = 0
+                } else {
+                    index++
+                }
+                routeText!!.text = displayRoute(selectedRoute!!)
             }
-            routeText!!.text = selectedRoute.toString()
+
         })
 
         nextFab.setOnClickListener(View.OnClickListener {
-
             if (selectedRoute != null) {
                 var newRoute = selectedRoute!!
                 (activity as MapsActivity?)!!.setRoute(newRoute)
@@ -92,7 +100,6 @@ class RouteGenFragment : DialogFragment() {
             } else {
                 Toast.makeText(this.context, "Please set a route first", Toast.LENGTH_LONG)
             }
-
         })
 
         startBut.setOnClickListener(View.OnClickListener {
@@ -104,7 +111,7 @@ class RouteGenFragment : DialogFragment() {
         })
 
         dstBut.setOnClickListener(View.OnClickListener {
-            dstText!!.text = "1000m"
+            dstText!!.text = "500"
         })
 
     }

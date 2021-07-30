@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@drawable/rounded_dialog"
     android:minWidth="320dp"
-    android:minHeight="450dp"
+    android:minHeight="400dp"
     android:orientation="vertical"
     android:padding="24dp">
 
@@ -23,14 +23,17 @@
             android:textColor="#000000"
             android:textSize="25sp"
             android:background="@drawable/my_button"/>
-        <TextView
+
+        <EditText
             android:id="@+id/startText"
-            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text=""
+            android:layout_width="match_parent"
+            android:backgroundTint="#ffffff"
+            android:inputType="text"
             android:textColor="#ffffff"
             android:textSize="30sp"
             android:layout_marginLeft="15dp"/>
+
     </LinearLayout>
 
     <LinearLayout
@@ -46,11 +49,13 @@
             android:textColor="#000000"
             android:textSize="25sp"
             android:background="@drawable/my_button"/>
-        <TextView
+
+        <EditText
             android:id="@+id/endText"
-            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text=""
+            android:layout_width="match_parent"
+            android:backgroundTint="#ffffff"
+            android:inputType="text"
             android:textColor="#ffffff"
             android:textSize="30sp"
             android:layout_marginLeft="15dp"/>
@@ -69,24 +74,44 @@
             android:textColor="#000000"
             android:textSize="25sp"
             android:background="@drawable/my_button"/>
-        <TextView
+
+        <EditText
             android:id="@+id/dstText"
+            android:layout_height="wrap_content"
+            android:layout_width="100dp"
+            android:backgroundTint="#ffffff"
+            android:inputType="text"
+            android:textColor="#ffffff"
+            android:textSize="30sp"
+            android:layout_marginLeft="15dp"/>
+
+        <TextView
+            android:id="@+id/unitText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text=""
+            android:text="m"
             android:textColor="#ffffff"
             android:textSize="30sp"
             android:layout_marginLeft="15dp"/>
     </LinearLayout>
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/rerunfab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/fab_run"
+        android:layout_gravity="bottom|center"
+        android:layout_marginBottom="@dimen/ui_margin_small"
+        map:backgroundTint="#ffffff"
+        map:fabSize="mini"/>
+
     <TextView
         android:id="@+id/routeText"
         android:layout_width="wrap_content"
-        android:layout_height="70dp"
-        android:text=""
+        android:layout_height="75dp"
+        android:text="Set start point, end point, and preferred walking distance to get a route!"
         android:textColor="#ffffff"
-        android:textSize="20sp"
-        android:layout_marginLeft="15dp"/>
+        android:textSize="20sp" />
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -101,18 +126,7 @@
             android:layout_gravity="bottom|start"
             android:layout_marginStart="@dimen/ui_margin_small"
             android:layout_marginBottom="@dimen/ui_margin_small"
-            map:backgroundTint="#ffffff"
-            map:fabSize="mini"/>
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/rerunfab"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/fab_rerun"
-            android:layout_gravity="bottom|center"
-            android:layout_marginBottom="@dimen/ui_margin_small"
-            map:backgroundTint="#ffffff"
-            map:fabSize="mini"/>
+            map:backgroundTint="#ffffff" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/nextfab"
@@ -122,8 +136,7 @@
             android:layout_marginEnd="@dimen/ui_margin_small"
             android:layout_marginBottom="@dimen/ui_margin_small"
             map:srcCompat="@drawable/fab_next"
-            map:backgroundTint="#ffffff"
-            map:fabSize="mini"/>
+            map:backgroundTint="#ffffff" />
     </FrameLayout>
 
 </LinearLayout>

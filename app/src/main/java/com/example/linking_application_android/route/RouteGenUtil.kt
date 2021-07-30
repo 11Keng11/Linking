@@ -111,6 +111,19 @@ fun getRoutes() : ArrayList<ArrayList<String>> {
     return routes
 }
 
+fun displayRoute(route : ArrayList<String>) : String {
+    var routeStr = ""
+    var length : Int = route.size
+    for (i in route.indices) {
+        if (i == length-1) {
+            routeStr = routeStr + route.get(i)
+        } else {
+            routeStr = routeStr + route.get(i) + " -> "
+        }
+    }
+    return routeStr
+}
+
 
 
 
