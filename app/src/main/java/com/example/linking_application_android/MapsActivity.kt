@@ -589,7 +589,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
             curLocation = LatLng(locations.get(0).latitude,locations.get(0).longitude)
 //            Log.e("testLoc", curLocation.toString())
             var distLeft = distanceBetween(curLocation, dstLocation)
-            if (distLeft < 5.0) {
+            if (distLeft < 7.0) {
                 if (!isScanning) {
                     startBleService()
                     Toast.makeText(applicationContext, "Starting Scan",
