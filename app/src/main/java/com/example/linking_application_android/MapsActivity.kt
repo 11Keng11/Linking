@@ -587,6 +587,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
     private val airLocation = AirLocation(this, object : AirLocation.Callback {
         override fun onSuccess(locations: ArrayList<Location>) {
             curLocation = LatLng(locations.get(0).latitude,locations.get(0).longitude)
+//            Log.e("testLoc", curLocation.toString())
             var distLeft = distanceBetween(curLocation, dstLocation)
             if (distLeft < 2.0) {
                 if (!isScanning) {

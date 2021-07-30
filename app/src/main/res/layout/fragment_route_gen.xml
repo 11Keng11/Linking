@@ -30,6 +30,7 @@
             android:layout_width="match_parent"
             android:backgroundTint="#ffffff"
             android:inputType="text"
+            android:text="e.g. NA26"
             android:textColor="#ffffff"
             android:textSize="30sp"
             android:layout_marginLeft="15dp"/>
@@ -56,6 +57,7 @@
             android:layout_width="match_parent"
             android:backgroundTint="#ffffff"
             android:inputType="text"
+            android:text="e.g. NA24"
             android:textColor="#ffffff"
             android:textSize="30sp"
             android:layout_marginLeft="15dp"/>
@@ -78,9 +80,10 @@
         <EditText
             android:id="@+id/dstText"
             android:layout_height="wrap_content"
-            android:layout_width="100dp"
+            android:layout_width="130dp"
             android:backgroundTint="#ffffff"
             android:inputType="text"
+            android:text="e.g. 800"
             android:textColor="#ffffff"
             android:textSize="30sp"
             android:layout_marginLeft="15dp"/>
@@ -91,8 +94,7 @@
             android:layout_height="wrap_content"
             android:text="m"
             android:textColor="#ffffff"
-            android:textSize="30sp"
-            android:layout_marginLeft="15dp"/>
+            android:textSize="30sp" />
     </LinearLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
