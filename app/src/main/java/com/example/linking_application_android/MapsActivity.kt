@@ -110,7 +110,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
     val path = ArrayList<Marker>()
     var step : Int = -1
     var curLocation : LatLng = LatLng(0.0,0.0)
-    var dstLocation : LatLng = LatLng(1.3408436,103.9620222)
+    var dstLocation : LatLng = LatLng(0.0,0.0)
 
     // Google sheet keys.
     private var google_api_key: String = "AIzaSyDqJlXlJFXnGGjVXJs8maiUP5rE9oKsOB4"
@@ -215,9 +215,9 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
                 Toast.makeText(applicationContext, "Starting Scan",
                     Toast.LENGTH_SHORT).show()
                 readFBData()
-                if (isRoute) {
-                    setReach()
-                }
+//                if (isRoute) {
+//                    setReach()
+//                }
             }
             else {
                 Toast.makeText(applicationContext, "Stopping Scan",
