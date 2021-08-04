@@ -1,4 +1,7 @@
 package com.example.linking_application_android.route
+
+import java.util.*
+
 //
 //import android.util.Log
 //import com.google.android.gms.maps.model.LatLng
@@ -83,3 +86,77 @@ package com.example.linking_application_android.route
 //
 //}
 //
+
+fun getRoutes() : ArrayList<ArrayList<String>> {
+    val routes = ArrayList<ArrayList<String>>()
+//    val route0 = arrayOf("NA20", "NA12").toCollection(ArrayList())
+//    val route1 = arrayOf("NA20", "GE2", "NA12").toCollection(ArrayList())
+//    val route2 = arrayOf("NA20", "GE2", "GE22", "NA12").toCollection(ArrayList())
+//    val route3 = arrayOf("NA20", "GE2", "NA19", "NA12").toCollection(ArrayList())
+//    val route4 = arrayOf("NA20", "GE2", "GE18", "NA12").toCollection(ArrayList())
+//    val route5 = arrayOf("NA20", "NA19", "NA12").toCollection(ArrayList())
+//    val route6 = arrayOf("NA20", "NA19", "GE2", "NA12").toCollection(ArrayList())
+//    val route7 = arrayOf("NA20", "NA19", "GE2", "GE22", "NA12").toCollection(ArrayList())
+//    val route8 = arrayOf("NA20", "NA19", "GE2", "GE18", "NA12").toCollection(ArrayList())
+    val route9 = arrayOf("GE26","GE25").toCollection(ArrayList())
+//    routes.add(route0)
+//    routes.add(route1)
+//    routes.add(route2)
+//    routes.add(route3)
+//    routes.add(route4)
+//    routes.add(route5)
+//    routes.add(route6)
+//    routes.add(route7)
+//    routes.add(route8)
+    routes.add(route9)
+    return routes
+}
+
+fun displayRoute(route : ArrayList<String>) : String {
+    var routeStr = ""
+    var length : Int = route.size
+    for (i in route.indices) {
+        if (i == length-1) {
+            routeStr = routeStr + route.get(i)
+        } else {
+            routeStr = routeStr + route.get(i) + " -> "
+        }
+    }
+    return routeStr
+}
+
+fun getLandmarks(theme : String) : ArrayList<String> {
+    var selection: ArrayList<String> = ArrayList()
+    if (theme == "Nature") {
+        selection.add("NA66");
+        selection.add("NA67");
+        selection.add("GE25");
+        selection.add("GE26");
+        selection.add("GE27");
+        selection.add("GE28");
+    } else if (theme == "Exercise") {
+        selection.add("EX90");
+        selection.add("EX91");
+        selection.add("EX92");
+        selection.add("EX93");
+        selection.add("EX94");
+        selection.add("EX95");
+        selection.add("EX96");
+        selection.add("EX97");
+        selection.add("GE25");
+        selection.add("GE26");
+        selection.add("GE27");
+        selection.add("GE28");
+    } else if (theme == "Play") {
+        selection.add("PA105");
+        selection.add("GE25");
+        selection.add("GE26");
+        selection.add("GE27");
+        selection.add("GE28");
+    }
+    return selection
+}
+
+
+
+

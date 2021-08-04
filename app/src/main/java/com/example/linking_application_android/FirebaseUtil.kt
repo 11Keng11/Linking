@@ -14,13 +14,14 @@ fun readFBData() {
         "age" to 24 )
 
     val db = FirebaseUtils().fireStoreDatabase
-    val docRef = db.collection("Beacons").document("NA20")
+    val docRef = db.collection("route").document("testroute")
     docRef.get()
         .addOnSuccessListener { document ->
             if (document != null) {
-                Log.d("FIREBASE", "DocumentSnapshot data: ${document.data}")
+                val data = document.data
+                Log.e("FIREBASE", "DocumentSnapshot data: ${data!!::class.simpleName}")
             } else {
-                Log.d("FIREBASE", "No such document")
+                Log.e("FIREBASE", "No such document")
             }
         }
         .addOnFailureListener { exception ->
