@@ -113,7 +113,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
     val path = ArrayList<Marker>()
     var step : Int = -1
     var curLocation : LatLng = LatLng(0.0,0.0)
-    var dstLocation : LatLng = LatLng(1.3408436,103.9620222)
+    var dstLocation : LatLng = LatLng(0.0,0.0)
 
     // Google sheet keys.
     private var google_api_key: String = "AIzaSyDqJlXlJFXnGGjVXJs8maiUP5rE9oKsOB4"
@@ -218,9 +218,9 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
                 Toast.makeText(applicationContext, "Starting Scan",
                     Toast.LENGTH_SHORT).show()
                 readFBData()
-                if (isRoute) {
-                    setReach()
-                }
+//                if (isRoute) {
+//                    setReach()
+//                }
             }
             else {
                 Toast.makeText(applicationContext, "Stopping Scan",
@@ -301,7 +301,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
         mMap!!.animateCamera(
             CameraUpdateFactory.newLatLngZoom(
                 LatLng(1.3539,103.9360)
-                , 16.0f)
+                , 15.0f)
         )
     }
 
@@ -509,7 +509,6 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
         setIsScanning(false)
         val intent = Intent(this, BLEService::class.java)
         stopService(intent)
-        Log.e("onStopr error", "stopping scan")
     }
 
     private fun setIsScanning(isScan: Boolean) {
@@ -606,8 +605,9 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
     private val airLocation = AirLocation(this, object : AirLocation.Callback {
         override fun onSuccess(locations: ArrayList<Location>) {
             curLocation = LatLng(locations.get(0).latitude,locations.get(0).longitude)
+//            Log.e("testLoc", curLocation.toString())
             var distLeft = distanceBetween(curLocation, dstLocation)
-            if (distLeft < 2.0) {
+            if (distLeft < 7.0) {
                 if (!isScanning) {
                     startBleService()
                     Toast.makeText(applicationContext, "Starting Scan",
