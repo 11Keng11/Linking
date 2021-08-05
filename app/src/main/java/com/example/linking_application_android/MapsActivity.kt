@@ -218,7 +218,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
                 startBleService()
                 Toast.makeText(applicationContext, "Starting Scan",
                     Toast.LENGTH_SHORT).show()
-                readFBData()
+//                readFBData()
 //                if (isRoute) {
 //                    setReach()
 //                }
@@ -438,6 +438,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
     private var bluetoothManager: BluetoothManager? = null
     private var bluetoothAdapter: BluetoothAdapter? = null
     private var receiver: BroadcastReceiver? = null
+    private var receiver2: BroadcastReceiver? = null // QF added this
     private var isReceiverRegistered = false
     private fun setBluetoothManager() {
         bluetoothManager = this.getSystemService(BLUETOOTH_SERVICE) as BluetoothManager
@@ -463,6 +464,21 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
             }
         }
     }
+    // QF added this
+    private fun setReceiver2() {
+        receiver2 = object : BroadcastReceiver() {
+            @SuppressLint("TimberArgCount")
+            override fun onReceive(context: Context?, intent: Intent) {
+                Intrinsics.checkNotNullParameter(intent, "intent")
+                is_ble_connected = intent.getBooleanExtra("is_ble_connected",false)
+                Log.i("ble23", "is_ble_connected? $is_ble_connected")
+                if(is_ble_connected){
+                    count_ble = 0
+                }
+            }
+        }
+    }
+    // QF added this
 
     private val isLocationPermissionGranted: Boolean
     private get() = hasPermission(this, "android.permission.ACCESS_FINE_LOCATION")
@@ -486,7 +502,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
                 "4" -> send and change the image
              */
             val message_to_send_cmd = false
-            val command_to_send = "1"
+            val command_to_send = "3"
             /*
                Can use this for the landmarks ids -> each beacon will follow this ids
                Use https://www.uuidgenerator.net/version1 to generate the UUID
@@ -505,6 +521,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
             startService(intent)
             isReceiverRegistered = true
             registerReceiver(receiver, IntentFilter("GET_HELLO"))
+            registerReceiver(receiver2, IntentFilter("GET_BLE_STATE")) // QF added this
         }
     }
     fun stopBleService() {
@@ -512,6 +529,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
         setIsScanning(false)
         val intent = Intent(this, BLEService::class.java)
         stopService(intent)
+        is_ble_connected = false // QF added this
     }
 
     private fun setIsScanning(isScan: Boolean) {
@@ -570,6 +588,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
         setBluetoothManager()
         setBluetoothAdapter()
         setReceiver()
+        setReceiver2()
         if (!bluetoothAdapter!!.isEnabled) {
             promptEnableBluetooth()
         } else {
@@ -599,11 +618,14 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
     override fun onStop() {
         super.onStop()
         if (isReceiverRegistered){
-            unregisterReceiver(receiver) //<-- Unregister to avoid memoryleak
+            //<-- Unregister to avoid memoryleak
+            unregisterReceiver(receiver)
+            unregisterReceiver(receiver2) // QF added this
             isReceiverRegistered = false
         }
     }
-
+    private var count_ble = 0 // QF added this
+    private var is_ble_connected = false // QF added this
     // Location services
     private val airLocation = AirLocation(this, object : AirLocation.Callback {
         override fun onSuccess(locations: ArrayList<Location>) {
@@ -613,10 +635,24 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
             if (distLeft < 7.0) {
                 if (!isScanning) {
                     startBleService()
+                    count_ble = 0  // QF added this
                     Toast.makeText(applicationContext, "Starting Scan",
                         Toast.LENGTH_SHORT).show()
                 }
             }
+            // QF added this
+            if (isScanning){
+                if(count_ble>1 && !is_ble_connected){
+                    stopBleService()
+                    Toast.makeText(applicationContext, "Starting Scan",
+                        Toast.LENGTH_SHORT).show()
+                    count_ble = 0
+                    startBleService()
+                }else {
+                    count_ble++
+                }
+            }
+            // QF added this
         }
 
         override fun onFailure(locationFailedEnum: AirLocation.LocationFailedEnum) {
