@@ -217,7 +217,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
                 startBleService()
                 Toast.makeText(applicationContext, "Starting Scan",
                     Toast.LENGTH_SHORT).show()
-                readFBData()
+//                readFBData()
 //                if (isRoute) {
 //                    setReach()
 //                }
@@ -639,13 +639,14 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
             }
             // QF added this
             if (isScanning){
-                count_ble++
                 if(count_ble>1 && !is_ble_connected){
                     stopBleService()
-                    startBleService()
                     Toast.makeText(applicationContext, "Starting Scan",
                         Toast.LENGTH_SHORT).show()
                     count_ble = 0
+                    startBleService()
+                }else {
+                    count_ble++
                 }
             }
             // QF added this
