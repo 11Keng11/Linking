@@ -147,6 +147,7 @@
         android:id="@+id/routeText"
         android:layout_width="wrap_content"
         android:layout_height="75dp"
+        android:layout_gravity="center"
         android:text="Set start point, end point, and preferred walking distance to get a route!"
         android:textColor="#ffffff"
         android:textSize="20sp" />
