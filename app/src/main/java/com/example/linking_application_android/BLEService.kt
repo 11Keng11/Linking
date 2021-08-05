@@ -204,13 +204,18 @@ class BLEService : Service() {
                     if(command_to_send == "3" || command_to_send == "4" ) {
 
                         //TODO: to make it get image from Firebase instead...
-                        Log.i("ble23","getting image from raw")
+                        Log.i("ble23","getting image from internal storage")
                         val c = applicationContext
+                        val fileName = "test_img_ndp"
                         message_to_send_str = StorageHelper.cleanListStringToString(
-                            StorageHelper.getCSVFromUri(
-                                c, StorageHelper.getResUri(c, R.raw.test_img_ndp)
+//                            StorageHelper.getCSVFromUri(
+//                                c, StorageHelper.getResUri(c, R.raw.test_img_ndp)
+//                            )
+                            StorageHelper.readCSVFromPath(
+                                c.filesDir.toString() + "/" + fileName + ".txt"
                             )
                         )
+//                        println("hello....... stringing!$message_to_send_str")
                     }
                     if(command_to_send == "1" || command_to_send == "2"){
                         still_sending = true
