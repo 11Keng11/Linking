@@ -527,9 +527,9 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
     fun stopBleService() {
         Log.i("BLEService","Stop BLE Service.")
         setIsScanning(false)
+        is_ble_connected = false // QF added this
         val intent = Intent(this, BLEService::class.java)
         stopService(intent)
-        is_ble_connected = false // QF added this
     }
 
     private fun setIsScanning(isScan: Boolean) {
@@ -639,19 +639,21 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
                     Toast.makeText(applicationContext, "Starting Scan",
                         Toast.LENGTH_SHORT).show()
                 }
-            }
-            // QF added this
-            if (isScanning){
-                if(count_ble>1 && !is_ble_connected){
-                    stopBleService()
-                    Toast.makeText(applicationContext, "Starting Scan",
-                        Toast.LENGTH_SHORT).show()
-                    count_ble = 0
-                    startBleService()
-                }else {
-                    count_ble++
+
+                // QF added this
+                if (isScanning){
+                    if(count_ble>15 && !is_ble_connected){
+                        stopBleService()
+                        Toast.makeText(applicationContext, "Starting Scan",
+                            Toast.LENGTH_SHORT).show()
+                        count_ble = 0
+                        startBleService()
+                    }else {
+                        count_ble++
+                    }
                 }
             }
+
             // QF added this
         }
 

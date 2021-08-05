@@ -29,7 +29,7 @@ import kotlin.math.floor
 
 
 private  const val FILTER_DEVICE_NAME = "BeaconS23"
-private  const val RSSI_THRESHOLD_SCAN_DISTANCE = -80//-70 //Current estimate there should be a better way to ensure the proper scan radius
+private  const val RSSI_THRESHOLD_SCAN_DISTANCE = -90//-70 //Current estimate there should be a better way to ensure the proper scan radius
 private  const val CHARACTERISTIC_UUID = "beb5483e-36e1-4688-b7f5-ea07361b26a8"
 
 private var FILTER_DEVICE_UUID: ParcelUuid = ParcelUuid(UUID.fromString("4fafc201-1fb5-459e-8fcc-c5c9c331914b"))
