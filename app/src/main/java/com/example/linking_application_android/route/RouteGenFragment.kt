@@ -36,7 +36,7 @@ class RouteGenFragment : DialogFragment() {
     private var endText: TextView? = null
     private var dstText: TextView? = null
     private var routeText: TextView? = null
-    private var themeSpin: Spinner? = null
+//    private var themeSpin: Spinner? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -63,7 +63,7 @@ class RouteGenFragment : DialogFragment() {
         endText = view.findViewById(R.id.endText)
         dstText = view.findViewById(R.id.dstText)
         routeText = view.findViewById(R.id.routeText)
-        themeSpin = view.findViewById(R.id.themeSpin)
+//        themeSpin = view.findViewById(R.id.themeSpin)
 
         var selectedRoute // ArrayList of landmarks
                 : ArrayList<String>? = null
@@ -91,7 +91,7 @@ class RouteGenFragment : DialogFragment() {
             var start = startText!!.text.toString().uppercase()
             var end = endText!!.text.toString().uppercase()
             var dist = dstText!!.text.toString().uppercase()
-            if (start == "GE26" && end == "GE25" && dist == "100") {
+            if (start == "GE26" || end == "GE25" || dist == "1000") {
                 if (selectedRoute == null) {
                     rerunFab.setImageDrawable(getResources().getDrawable(R.drawable.fab_rerun))
                 }

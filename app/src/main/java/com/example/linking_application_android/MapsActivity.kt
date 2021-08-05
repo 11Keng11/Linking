@@ -24,6 +24,7 @@ import androidx.fragment.app.FragmentActivity
 import androidx.viewbinding.BuildConfig
 import com.example.linking_application_android.compass.CompassBottomSheetFragment
 import com.example.linking_application_android.databinding.ActivityMapsBinding
+import com.example.linking_application_android.profile.ProfileActivity
 import com.example.linking_application_android.route.RouteGenFragment
 import com.example.linking_application_android.util.InternetUtil
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -241,7 +242,9 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
         })
 
         accFab.setOnClickListener(View.OnClickListener {
-            resetRoute()
+//            resetRoute()
+            val intent = Intent(this, ProfileActivity::class.java);
+            startActivity(intent);
 
         })
     }

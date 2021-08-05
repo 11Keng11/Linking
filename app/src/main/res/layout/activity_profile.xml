@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".profile.ProfileActivity"
+    android:orientation="vertical">
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/profile_image"
+        android:layout_width="112dp"
+        android:layout_height="112dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="24dp"
+        android:src="@drawable/profile"
+        app:civ_border_width="2dp"
+        app:civ_border_color="#a2b16e"/>
+
+    <TextView
+        android:id="@+id/nameText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="10dp"
+        android:text="Keith Ng"
+        android:textColor="#a2b16e"
+        android:textSize="28sp"
+        android:fontFamily="sans-serif-medium"/>
+
+    <TextView
+        android:id="@+id/statsText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="15 400m | 12 Routes | Kopi-O"
+        android:textColor="#a2b16e"
+        android:textSize="18sp"/>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_gravity="start"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="12dp"
+            android:paddingBottom="5dp"
+            android:background="@drawable/rounded_dialog">
+
+            <TextView
+                android:id="@+id/routeText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:layout_marginStart="60dp"
+                android:text="Completed Routes"
+                android:textColor="#ffffff"
+                android:textSize="24sp"
+                android:fontFamily="sans-serif-medium"
+                android:clickable="true" />
+
+            <TextView
+                android:id="@+id/routeMiniText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:layout_marginStart="60dp"
+                android:text="3 completed routes in the past month"
+                android:textColor="#ffffff"
+                android:textSize="14sp"
+                android:clickable="true" />
+
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/routeIcon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start|center"
+            android:layout_marginStart="24dp"
+            android:src="@drawable/icon_route" />
+
+        <ImageView
+            android:id="@+id/routeNext"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end|center"
+            android:layout_marginEnd="24dp"
+            android:src="@drawable/icon_next" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/rounded_dialog"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="12dp"
+            android:paddingBottom="5dp">
+
+            <TextView
+                android:id="@+id/distText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:layout_marginStart="60dp"
+                android:text="Covered Distance"
+                android:textColor="#ffffff"
+                android:textSize="24sp"
+                android:fontFamily="sans-serif-medium"
+                android:clickable="true" />
+
+            <TextView
+                android:id="@+id/distMiniText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:layout_marginStart="60dp"
+                android:text="5000m covered in the past month"
+                android:textColor="#ffffff"
+                android:textSize="14sp"
+                android:clickable="true" />
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/distIcon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start|center"
+            android:layout_marginStart="24dp"
+            android:src="@drawable/icon_distance" />
+
+        <ImageView
+            android:id="@+id/distNext"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end|center"
+            android:layout_marginEnd="24dp"
+            android:src="@drawable/icon_next" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/rounded_dialog"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="12dp"
+            android:paddingBottom="5dp">
+
+            <TextView
+                android:id="@+id/rewardsText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:layout_marginStart="60dp"
+                android:text="Rewards"
+                android:textColor="#ffffff"
+                android:textSize="24sp"
+                android:fontFamily="sans-serif-medium"
+                android:clickable="true" />
+
+            <TextView
+                android:id="@+id/rewardsMiniText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:layout_marginStart="60dp"
+                android:text="3 available rewards to be claimed"
+                android:textColor="#ffffff"
+                android:textSize="14sp"
+                android:clickable="true" />
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/rewardsIcon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start|center"
+            android:layout_marginStart="24dp"
+            android:src="@drawable/icon_reward" />
+
+        <ImageView
+            android:id="@+id/rewardsNext"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end|center"
+            android:layout_marginEnd="24dp"
+            android:src="@drawable/icon_next" />
+
+    </FrameLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_gravity="start"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="12dp"
+            android:paddingBottom="5dp"
+            android:background="@drawable/rounded_dialog">
+
+            <TextView
+                android:id="@+id/challengeText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:layout_marginStart="60dp"
+                android:text="Challenges"
+                android:textColor="#ffffff"
+                android:textSize="24sp"
+                android:fontFamily="sans-serif-medium"
+                android:clickable="true" />
+
+            <TextView
+                android:id="@+id/challengeMiniText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:layout_marginStart="60dp"
+                android:text="1 new challenge unlocked"
+                android:textColor="#ffffff"
+                android:textSize="14sp"
+                android:clickable="true" />
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/challengeIcon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start|center"
+            android:layout_marginStart="24dp"
+            android:src="@drawable/icon_route" />
+
+        <ImageView
+            android:id="@+id/challengeNext"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end|center"
+            android:layout_marginEnd="24dp"
+            android:src="@drawable/icon_next" />
+    </FrameLayout>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/backFab"
+        android:layout_width="74dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="14dp"
+        app:srcCompat="@drawable/fab_back"
+        app:tint="#ffffff"
+        app:backgroundTint="#a2b16e"
+        app:fabSize="normal"/>
+
+
+</LinearLayout>
