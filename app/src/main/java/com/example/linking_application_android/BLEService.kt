@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Service
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothManager
 import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanFilter
@@ -19,8 +20,12 @@ import com.example.linking_application_android.ble.ConnectionEventListener
 import com.example.linking_application_android.ble.ConnectionManager
 import com.example.linking_application_android.ble.findCharacteristic
 import com.example.linking_application_android.ble.toHexString
+import com.example.linking_application_android.helper.BitmapHelper
+import com.example.linking_application_android.helper.StorageHelper
 import timber.log.Timber
 import java.util.*
+import kotlin.math.ceil
+import kotlin.math.floor
 
 
 private  const val FILTER_DEVICE_NAME = "BeaconS23"
@@ -28,8 +33,17 @@ private  const val RSSI_THRESHOLD_SCAN_DISTANCE = -80//-70 //Current estimate th
 private  const val CHARACTERISTIC_UUID = "beb5483e-36e1-4688-b7f5-ea07361b26a8"
 
 private var FILTER_DEVICE_UUID: ParcelUuid = ParcelUuid(UUID.fromString("4fafc201-1fb5-459e-8fcc-c5c9c331914b"))
+private val TX_ID = "61"
 
 class BLEService : Service() {
+
+    private var still_sending = false
+    private var command_to_send = ""
+    private var send_count = 0
+    private var send_str = listOf<ByteArray>()
+    private var msgLength = 0
+    private var message_to_send_str = ""
+    private var message_to_send_cmd = false
 
     private var b23BatteryLevel = 0.0
 
@@ -78,6 +92,10 @@ class BLEService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+
+        command_to_send = intent?.getStringExtra("Command_to_send_cmd")!!
+        message_to_send_cmd = intent?.getBooleanExtra("Message_to_send_cmd", false)!! // passing through intent bolcks the thread
+
         isScanning = true
         FILTER_DEVICE_UUID = ParcelUuid(UUID.fromString(intent?.getStringExtra("DeviceUUID")))
 //        Log.i("BLEService", "Device UUID: $FILTER_DEVICE_UUID")
@@ -114,7 +132,6 @@ class BLEService : Service() {
 //                                    " address: ${d.address}, rssi: $rssi, tx_power: $txPower"//, distance: $distance"
 //                        )
                         if ((rssi > RSSI_THRESHOLD_SCAN_DISTANCE)) {
-//                            val distance = calculateDistance(txPower.toDouble(), rssi.toDouble()) //not working, not accurate
                             scannedResult = result
                             isDeviceFound = true
                         }
@@ -126,21 +143,6 @@ class BLEService : Service() {
             Timber.e("onScanFailed: code $errorCode")
         }
     }
-
-//    private fun calculateDistance(txPower: Double, rssi: Double): Double {
-//        if (rssi == 0.0) {
-//            return -1.0 // if we cannot determine distance, return -1.
-//        }
-//        val ratio = rssi * 1.0 / -txPower
-//        return if (ratio < 1.0) {
-//            ratio.pow(10.0)
-//        } else {
-//            0.89976 * ratio.pow(7.7095) + 0.111
-//        }
-////        val t = -69.0
-////        val r = -60.0
-////        return 10.toDouble().pow((-txPower-rssi)/(10*3))
-//    }
 
     private fun stopScan(){
         bleScanner.stopScan(scanCallback)
@@ -161,6 +163,8 @@ class BLEService : Service() {
         this.stopSelf()
     }
 
+    private lateinit var bleGatt: BluetoothGatt
+
     private val connectionEventListener by lazy {
         ConnectionEventListener().apply {
             onDisconnect = {
@@ -171,6 +175,7 @@ class BLEService : Service() {
             onConnectionSetupComplete = { characteristic ->
                 Timber.i("Connected from $scannedResult.device}")
 //                val readServiceUuid = UUID.fromString("4fafc201-1fb5-459e-8fcc-c5c9c331914b")
+                bleGatt = characteristic
                 val readCharUuid = UUID.fromString(CHARACTERISTIC_UUID)
                 characteristic.findCharacteristic(readCharUuid)?.let { it1 ->
                     ConnectionManager.readCharacteristic(characteristic.device,
@@ -180,15 +185,71 @@ class BLEService : Service() {
             }
 
             onCharacteristicRead = { _, characteristic ->
-                Log.i("ble23", "Read from ${characteristic.uuid}: ${characteristic.value.toHexString()}")
+//                Log.i("ble23", "Read from ${characteristic.uuid}: ${characteristic.value.toHexString()}")
+
+                if (message_to_send_cmd && !still_sending) {
+                    if(command_to_send == "3" || command_to_send == "4" ) {
+
+                        //TODO: to make it get image from Firebase instead...
+                        Log.i("ble23","getting image from raw")
+                        val c = applicationContext
+                        message_to_send_str = StorageHelper.cleanListStringToString(
+                            StorageHelper.getCSVFromUri(
+                                c, StorageHelper.getResUri(c, R.raw.test_img_ndp)
+                            )
+                        )
+                    }
+                    if(command_to_send == "1" || command_to_send == "2"){
+                        still_sending = true
+                        msgLength = 1
+                    }
+                }
+                if (message_to_send_str.isNotEmpty() && !still_sending){
+                    val msg_prepared = prepareImageToSend(message_to_send_str)
+                    send_str = msg_prepared[0] as List<ByteArray>
+                    msgLength = msg_prepared[1] as Int
+                    still_sending = true
+                }
+
+
                 b23BatteryLevel = characteristic.value.decodeToString().split(" ")[2].toDouble()
-                val toSendString = "61".toByteArray()
+
+                /*
+                 TODO: to write up the protocol to exchange between the beacon and app.
+                 */
+                var toSendString = TX_ID.toByteArray()
+
+                if (still_sending) {
+                    if (send_count >= msgLength) {
+                        still_sending = false
+                        command_to_send = ""
+                    } else {
+                        toSendString += byteArrayOf(msgLength.toByte())
+                        toSendString += byteArrayOf(command_to_send.toByte())
+                        if(command_to_send == "3" || command_to_send == "4") {
+                            toSendString += send_str[send_count]
+                        }
+                        println("Sending -> count: $send_count, Size: ${toSendString.size}, Msg: ${toSendString.toHexString()}")
+                    }
+                    send_count += 1
+                }
+
+
                 ConnectionManager.writeCharacteristic(scannedResult.device,characteristic,toSendString)
             }
 
             onCharacteristicWrite = { _, characteristic ->
-                Timber.i("Wrote to ${characteristic.uuid}")
-                ConnectionManager.teardownConnection(scannedResult.device)
+//                Log.i("BLEService", "Wrote to ${characteristic.uuid}, count: $send_count")
+                if(!still_sending) {
+                    ConnectionManager.teardownConnection(scannedResult.device)
+                }else{
+                    val readCharUuid = UUID.fromString(CHARACTERISTIC_UUID)
+                    bleGatt.findCharacteristic(readCharUuid)?.let { it1 ->
+                        ConnectionManager.readCharacteristic(bleGatt.device,
+                            it1
+                        )
+                    }
+                }
             }
 
             onMtuChanged = { _, mtu ->
@@ -228,4 +289,39 @@ class BLEService : Service() {
     }
     private fun String.hexToBytes() =
         this.chunked(2).map { it.toUpperCase(Locale.US).toInt(16).toByte() }.toByteArray()
+
+    private fun prepareImageToSend(message_to_send_str: String): List<Any> {
+        // 30720 * 2 = 61440
+        // m = 0 : 1000*0..1000*1-1   : 0..999
+        // m = 1 : 1000*1..1000*2-1   : 1000..1999
+        // m = 2 : 1000*2..1000*3-1   : 2000..2999
+        // m = 3 : 1000*3..1000*4-1   : 3000..3999
+        // m = 4 : 1000*4..1000*5-1   : 4000..4999
+        // m = 50: 1000*50..1000*51-1 : 50000..59999
+        // m = 60: 1000*60..1000*61-1 : 60000..69999
+        // m = 61: 1000*61..1000*62-1 : 61000..(61440-1) -> 79999
+//        val msg_slice = message_to_send_str.substring(1000*send_count, 1000*(send_count+1)-1).hexToBytes()
+//        println("hello msg_slice.... :${msg_slice.size} : ${msg_slice.toHexString()}")
+        var send_str = listOf<ByteArray>()
+        val msgLengthDouble = message_to_send_str.length/1000.0
+        var msgLengthCeil = msgLengthDouble.toInt()
+
+        val msgLength = msgLengthCeil
+        if (msgLengthDouble % 1 != 0.0) {
+            msgLengthCeil += 1
+        }
+        for (m in 0 until msgLengthCeil) {
+            var msg_slice: ByteArray
+//            println("trying... $m $msgLength $msgLengthCeil")
+            if (m < msgLength) {
+                msg_slice = message_to_send_str.substring(1000*m, 1000*(m+1)-1).hexToBytes()
+            } else {
+                msg_slice = message_to_send_str.substring(1000*m, message_to_send_str.length - 1).hexToBytes()
+            }
+            send_str += msg_slice
+//            println("hello msg_slice....$m :${msg_slice.size} : ${msg_slice.toHexString()}")
+        }
+        return listOf(send_str, msgLengthCeil)
+    }
+
 }

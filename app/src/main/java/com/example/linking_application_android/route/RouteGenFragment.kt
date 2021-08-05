@@ -7,10 +7,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
-import android.widget.Spinner
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.widget.AppCompatButton
 import androidx.fragment.app.DialogFragment
 import com.example.linking_application_android.MapsActivity
@@ -64,6 +61,27 @@ class RouteGenFragment : DialogFragment() {
         dstText = view.findViewById(R.id.dstText)
         routeText = view.findViewById(R.id.routeText)
 //        themeSpin = view.findViewById(R.id.themeSpin)
+//
+//        val themes = resources.getStringArray(R.array.Themes)
+//
+//        if (themeSpin != null) {
+//            val adapter = ArrayAdapter(this,
+//                android.R.layout.simple_spinner_item, themes)
+//            themeSpin.adapter = adapter
+//
+//            themeSpin.onItemSelectedListener = object :
+//                AdapterView.OnItemSelectedListener {
+//                override fun onItemSelected(parent: AdapterView<*>,
+//                                            view: View, position: Int, id: Long) {
+//                    Toast.makeText(this,
+//                        "Selected Option: " + themes[position], Toast.LENGTH_SHORT).show()
+//                }
+//
+//                override fun onNothingSelected(parent: AdapterView<*>) {
+//                    // write code to perform some action
+//                }
+//            }
+//        }
 
         var selectedRoute // ArrayList of landmarks
                 : ArrayList<String>? = null

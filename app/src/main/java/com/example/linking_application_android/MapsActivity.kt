@@ -9,6 +9,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.graphics.Color
 import android.location.Location
 import android.os.Build
@@ -25,6 +26,8 @@ import androidx.viewbinding.BuildConfig
 import com.example.linking_application_android.compass.CompassBottomSheetFragment
 import com.example.linking_application_android.databinding.ActivityMapsBinding
 import com.example.linking_application_android.profile.ProfileActivity
+import com.example.linking_application_android.helper.BitmapHelper
+import com.example.linking_application_android.helper.StorageHelper
 import com.example.linking_application_android.route.RouteGenFragment
 import com.example.linking_application_android.util.InternetUtil
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -340,6 +343,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
                         i +=1
                     }
                 }
+
             } else if (node.get(0) == 'N') {
                 for (mkr in natureMarkers!!) {
                     if (mkr.snippet == node) {
@@ -449,7 +453,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
             override fun onReceive(context: Context?, intent: Intent) {
                 Intrinsics.checkNotNullParameter(intent, "intent")
                 b23BatteryLevel = intent.getDoubleExtra("BS3_battery_Level",0.0)
-                Log.i("ble23", "Hello from BLEService! $b23BatteryLevel")
+                Log.i("ble23", "Hello from BeaconS23! $b23BatteryLevel")
                 stopBleService()
                 Toast.makeText(applicationContext, "Successful BLE!",
                         Toast.LENGTH_LONG).show()
@@ -470,20 +474,34 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
             requestLocationPermission()
         } else {
             setIsScanning(true)
-            /*
-                Can use this for the landmarks ids -> each beacon will follow this ids
-                Use https://www.uuidgenerator.net/version1 to generate the UUID
-             */
 
+            /*
+                Possible command:
+                if message to send cmd is false
+                should ignore the command to send
+                only if message to send cmd is true
+                "1" -> reset the image to default
+                "2" -> show the image that was sent over
+                "3" -> send image over but do not change the image display
+                "4" -> send and change the image
+             */
+            val message_to_send_cmd = false
+            val command_to_send = "1"
+            /*
+               Can use this for the landmarks ids -> each beacon will follow this ids
+               Use https://www.uuidgenerator.net/version1 to generate the UUID
+            */
             //UUIDs
             // "b6e4af9e-e48a-11eb-ba80-0242ac130004"
             // "c0b9a99a-e488-11eb-ba80-0242ac130004"
             // “71e81e3a-e48a-11eb-ba80-0242ac130004”
 
-            val uuid = "b6e4af9e-e48a-11eb-ba80-0242ac130004" 
+            val uuid = "b6e4af9e-e48a-11eb-ba80-0242ac130004"
             val intent = Intent("BLEServiceAction", "BLEServiceUri".toUri(), this, BLEService::class.java).apply {
                 putExtra("DeviceUUID", uuid)
-            }
+                putExtra("Command_to_send_cmd", command_to_send)
+                putExtra("Message_to_send_cmd", message_to_send_cmd) // "")//
+                }
             startService(intent)
             isReceiverRegistered = true
             registerReceiver(receiver, IntentFilter("GET_HELLO"))
