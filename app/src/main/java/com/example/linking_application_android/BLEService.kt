@@ -37,6 +37,7 @@ private val TX_ID = "61"
 
 class BLEService : Service() {
 
+    private var is_ble_connected = false
     private var still_sending = false
     private var command_to_send = ""
     private var send_count = 0
@@ -51,6 +52,12 @@ class BLEService : Service() {
         val sendLevel = Intent()
         sendLevel.action = "GET_HELLO"
         sendLevel.putExtra("BS3_battery_Level", b23BatteryLevel)
+        sendBroadcast(sendLevel)
+    }
+    private fun sendOnConnectedToActivity(boolean: Boolean) {
+        val sendLevel = Intent()
+        sendLevel.action = "GET_BLE_STATE"
+        sendLevel.putExtra("is_ble_connected", boolean)
         sendBroadcast(sendLevel)
     }
 
@@ -113,6 +120,9 @@ class BLEService : Service() {
         isScanning = false
         isDeviceFound = false
         ConnectionManager.unregisterListener(connectionEventListener)
+        if(is_ble_connected) {
+            ConnectionManager.teardownConnection(scannedResult.device)
+        }
     }
 
     private val scanCallback = object : ScanCallback() {
@@ -168,12 +178,15 @@ class BLEService : Service() {
     private val connectionEventListener by lazy {
         ConnectionEventListener().apply {
             onDisconnect = {
-                Timber.w("Disconnected from ${scannedResult.device}")
+                Log.w("bles23","Disconnected from ${scannedResult.device}")
+                is_ble_connected = false
                 stopService()
             }
 
             onConnectionSetupComplete = { characteristic ->
-                Timber.i("Connected from $scannedResult.device}")
+                Log.i("bles23","Connected from $scannedResult.device}")
+                sendOnConnectedToActivity(true)
+                is_ble_connected = true
 //                val readServiceUuid = UUID.fromString("4fafc201-1fb5-459e-8fcc-c5c9c331914b")
                 bleGatt = characteristic
                 val readCharUuid = UUID.fromString(CHARACTERISTIC_UUID)
