@@ -640,20 +640,20 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
                         Toast.LENGTH_SHORT).show()
                 }
 
-                // QF added this
-                if (isScanning){
-                    if(count_ble>15 && !is_ble_connected){
-                        stopBleService()
-                        Toast.makeText(applicationContext, "Starting Scan",
-                            Toast.LENGTH_SHORT).show()
-                        count_ble = 0
-                        startBleService()
-                    }else {
-                        count_ble++
-                    }
+
+            }
+            // QF added this
+            if (isScanning){
+                if(count_ble>20 && !is_ble_connected){
+                    stopBleService()
+//                        Toast.makeText(applicationContext, "Starting Scan",
+//                            Toast.LENGTH_SHORT).show()
+                    count_ble = 0
+//                        startBleService()
+                }else {
+                    count_ble++
                 }
             }
-
             // QF added this
         }
 
