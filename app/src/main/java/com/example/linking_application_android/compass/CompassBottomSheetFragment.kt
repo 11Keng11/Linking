@@ -150,6 +150,11 @@ class CompassBottomSheetFragment : BottomSheetDialogFragment(), SensorEventListe
         override fun run() {
             updateOrientationAngles()
 
+            var dstTitle = (activity as MapsActivity?)!!.getDstTitle()
+            if (dstTitle == "Done!") {
+                dismiss()
+            }
+
             degrees = compassUtil.radianToDegrees(orientationAngles[0])
             var curLoc = (activity as MapsActivity?)!!.getCur()
             var dstLoc = (activity as MapsActivity?)!!.getDst()
@@ -160,7 +165,6 @@ class CompassBottomSheetFragment : BottomSheetDialogFragment(), SensorEventListe
             var dst = compassUtil.distance(curLoc,dstLoc).roundToInt()
             textView!!.text = "${dst.toString()}m"
 
-            var dstTitle = (activity as MapsActivity?)!!.getDstTitle()
 //            Log.d("Azimuth", degrees.toString())
 //            Log.d("curLoc", curLoc.toString())
 //            Log.d("dstLoc", dstLoc.toString())

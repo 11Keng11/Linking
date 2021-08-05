@@ -259,7 +259,13 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
     }
 
     fun getDstTitle() : String {
-        return path.get(step+1).snippet
+        var ans  = ""
+        if (path.size == 0) {
+            ans = "Done!"
+        } else {
+            ans = path.get(step+1).snippet
+        }
+        return ans
     }
 
     fun getDst() : LatLng {
