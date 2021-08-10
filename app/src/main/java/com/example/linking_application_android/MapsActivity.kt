@@ -215,9 +215,9 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
                 Toast.makeText(applicationContext, "Starting Scan",
                     Toast.LENGTH_SHORT).show()
                 readFBData()
-//                if (isRoute) {
-//                    setReach()
-//                }
+                if (isRoute) {
+                    setReach()
+                }
             }
             else {
                 Toast.makeText(applicationContext, "Stopping Scan",
